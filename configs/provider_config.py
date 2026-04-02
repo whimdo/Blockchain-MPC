@@ -1,6 +1,10 @@
 import os
 from dataclasses import dataclass
 
+from dotenv import load_dotenv
+
+
+load_dotenv()
 
 @dataclass
 class ProviderConfig:
@@ -10,6 +14,7 @@ class ProviderConfig:
 
 
 def load_provider_config() -> ProviderConfig:
+    """从环境变量加载链服务与交易所提供方配置。"""
     return ProviderConfig(
         ankr_rpc={
             "ethereum": os.getenv("ANKR_RPC_ETH", ""),

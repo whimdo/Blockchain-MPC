@@ -3,7 +3,6 @@ import asyncio
 import json
 import os
 
-
 from typing import Optional
 from contextlib import AsyncExitStack
 
@@ -17,20 +16,22 @@ load_dotenv()
 llm_client = OpenAI(
     base_url=os.getenv("API_URL"),
     # api_key=os.getenv("OPENAI_API_KEY"),
-    api_key = "sk-eDpJUi9nRVwbyuFQfTr7VARN4eMx53uASSseQaIP9k28XzCY",    
+    api_key="sk-eDpJUi9nRVwbyuFQfTr7VARN4eMx53uASSseQaIP9k28XzCY",
 )
 
 
 class MCPClient:
     def __init__(self):
+        """初始化 MCP 会话对象与异步资源栈。"""
         self.session: Optional[ClientSession] = None
         self.exit_stack = AsyncExitStack()
 
     async def process_query(self, query: str) -> str:
+        """处理单次用户提问并在需要时调用 MCP 工具。"""
         messages = [
             {
                 "role": "user",
-                "content": query
+                "content": query,
             }
         ]
 
@@ -39,18 +40,21 @@ class MCPClient:
 
         # 获取可用工具
         response = await self.session.list_tools()
-        available_tools = [{
-            "type": "function",
-            "function": {
-                "name": tool.name,
-                "description": tool.description,
-                "parameters": {
-                    "type": tool.inputSchema["type"],
-                    "required": tool.inputSchema["required"],
-                    "properties": tool.inputSchema["properties"],
-                }
+        available_tools = [
+            {
+                "type": "function",
+                "function": {
+                    "name": tool.name,
+                    "description": tool.description,
+                    "parameters": {
+                        "type": tool.inputSchema["type"],
+                        "required": tool.inputSchema["required"],
+                        "properties": tool.inputSchema["properties"],
+                    },
+                },
             }
-        } for tool in response.tools]
+            for tool in response.tools
+        ]
 
         print("可用工具:")
         print(json.dumps(available_tools, indent=4, ensure_ascii=False))
@@ -63,7 +67,7 @@ class MCPClient:
             tool_choice="required",
             max_tokens=100,
             temperature=0,
-            timeout=120
+            timeout=120,
         )
 
         print("第一次 LLM 响应:")
@@ -106,10 +110,10 @@ class MCPClient:
                         "content": tool_result.content[0].text,
                     }
                 )
-                messages1=[
+                messages1 = [
                     {
                         "role": "user",
-                        "content": f"answer of the question might be{tool_result.content[0].text}"
+                        "content": f"answer of the question might be{tool_result.content[0].text}",
                     }
                 ]
 
@@ -138,9 +142,8 @@ class MCPClient:
 
         return new_response.choices[0].message.content
 
-
     async def chat_loop(self):
-        """Run an interactive chat loop"""
+        """启动交互式命令行对话循环。"""
         print("\nMCP Client Started!")
         print("Type your queries or 'quit' to exit.")
 
@@ -148,7 +151,7 @@ class MCPClient:
             try:
                 query = input("\nQuery: ").strip()
 
-                if query.lower() == 'quit':
+                if query.lower() == "quit":
                     break
 
                 response = await self.process_query(query)
@@ -158,13 +161,13 @@ class MCPClient:
                 print(f"\nError: {str(e)}")
 
     async def cleanup(self):
-        """Clean up resources"""
+        """清理异步上下文并释放会话资源。"""
         await self.exit_stack.aclose()
 
-
     async def connect_to_server(self, server_script_path: str):
-        is_python = server_script_path.endswith('.py')
-        is_js = server_script_path.endswith('.js')
+        """连接到本地 MCP Server 脚本并初始化会话。"""
+        is_python = server_script_path.endswith(".py")
+        is_js = server_script_path.endswith(".js")
         if not (is_python or is_js):
             raise ValueError("Server script must be a .py or .js file")
 
@@ -172,7 +175,7 @@ class MCPClient:
         server_params = StdioServerParameters(
             command=command,
             args=[server_script_path],
-            env=None
+            env=None,
         )
 
         stdio_transport = await self.exit_stack.enter_async_context(stdio_client(server_params))
@@ -193,19 +196,24 @@ class MCPClient:
         resources = resources_templates_response.resourceTemplates
         # print("Connected to server with resources:", [resource for resource in resources])
 
+
 def serialize_messages(messages):
-    """ 处理 messages，确保所有对象都可序列化 """
+    """将复杂消息对象递归转换为可 JSON 序列化的结构。"""
+
     def serialize(obj):
+        """递归序列化列表和对象字段。"""
         if isinstance(obj, list):
             return [serialize(item) for item in obj]
-        elif hasattr(obj, '__dict__'):
+        elif hasattr(obj, "__dict__"):
             return {key: serialize(value) for key, value in obj.__dict__.items()}
         else:
-            return obj  # 其他数据类型，直接返回
+            return obj
 
     return json.dumps(serialize(messages), indent=4, ensure_ascii=False)
 
+
 async def main():
+    """程序入口：连接服务并启动聊天循环。"""
     client = MCPClient()
     try:
         await client.connect_to_server("../server/server.py")
