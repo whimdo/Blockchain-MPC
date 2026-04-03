@@ -43,9 +43,22 @@ class MarketService:
                 if symbol and symbol not in {"USDT", "USDC", "BUSD"}:
                     symbols_to_query.append(f"{symbol}USDT")
 
+            def chunk_list(lst, size):
+                for i in range(0, len(lst), size):
+                    yield lst[i:i + size]
+
             symbols_to_query = list(dict.fromkeys(symbols_to_query))
-            prices = self.price_service.get_symbols_price(symbols_to_query) if symbols_to_query else []
-            price_map = {item["symbol"]: item["price"] for item in prices if "symbol" in item}
+
+            all_prices = []
+
+            for chunk in chunk_list(symbols_to_query, 20):
+                try:
+                    prices = self.price_service.get_symbols_price(chunk)
+                    all_prices.extend(prices)
+                except Exception as e:
+                    print("Chunk failed:", chunk, e)
+
+            price_map = {p["symbol"]: p["price"] for p in all_prices}
 
             enriched_assets = []
             for item in normalized_assets:

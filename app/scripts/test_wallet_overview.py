@@ -14,6 +14,7 @@ def main() -> None:
     try:
         logger.info("Wallet overview test started")
         result = service.get_wallet_assets_with_prices(address, chains)
+        logger.info("Wallet overview test result: %s", result)
         print(result)
         logger.info("Wallet overview test completed")
     except Exception:

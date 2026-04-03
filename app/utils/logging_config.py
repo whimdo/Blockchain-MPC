@@ -15,7 +15,7 @@ def _safe_log_name(name: str) -> str:
 
 
 def get_logger(name: str) -> logging.Logger:
-    """获取模块日志器，并写入模块日志与错误日志文件。"""
+    """获取模块日志器，并写入单个模块日志文件。"""
     logger = logging.getLogger(name)
     if logger.handlers:
         return logger
@@ -24,33 +24,21 @@ def get_logger(name: str) -> logging.Logger:
     logger.propagate = False
 
     safe_name = _safe_log_name(name)
-    all_log_path = LOG_DIR / f"{safe_name}.log"
-    error_log_path = LOG_DIR / f"{safe_name}.error.log"
+    log_path = LOG_DIR / f"{safe_name}.log"
 
     formatter = logging.Formatter(
         fmt="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
     )
 
-    all_handler = RotatingFileHandler(
-        all_log_path,
+    handler = RotatingFileHandler(
+        log_path,
         maxBytes=5 * 1024 * 1024,
         backupCount=3,
         encoding="utf-8",
     )
-    all_handler.setLevel(logging.INFO)
-    all_handler.setFormatter(formatter)
+    handler.setLevel(logging.INFO)
+    handler.setFormatter(formatter)
 
-    error_handler = RotatingFileHandler(
-        error_log_path,
-        maxBytes=5 * 1024 * 1024,
-        backupCount=3,
-        encoding="utf-8",
-    )
-    error_handler.setLevel(logging.ERROR)
-    error_handler.setFormatter(formatter)
-
-    logger.addHandler(all_handler)
-    logger.addHandler(error_handler)
+    logger.addHandler(handler)
     return logger
-

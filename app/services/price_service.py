@@ -23,7 +23,7 @@ class PriceService:
     def get_symbols_price(self, symbols: list[str]) -> list[dict]:
         """Get prices for multiple trading pairs."""
         try:
-            result = self.client.get_multi_symbol_price(symbols)
+            result = self.client.get_multi_symbol_price_safe(symbols)
             self.logger.info("Multiple symbol prices fetched count=%s", len(symbols))
             return result
         except Exception:
