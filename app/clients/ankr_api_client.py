@@ -10,7 +10,6 @@ from configs.provider_config import load_provider_config
 
 class AnkrAPIClient:
     """Client for Ankr Advanced API."""
-
     def __init__(self) -> None:
         """Initialize Ankr client and load base configuration."""
         self.logger = get_logger("app.clients.ankr_api_client")

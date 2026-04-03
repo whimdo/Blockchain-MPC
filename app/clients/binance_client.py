@@ -118,7 +118,6 @@ class BinanceClient:
         if not valid_symbols:
             self.logger.warning("No valid Binance symbols to query")
             return []
-
         all_results: list[dict[str, Any]] = []
 
         for i in range(0, len(valid_symbols), batch_size):
