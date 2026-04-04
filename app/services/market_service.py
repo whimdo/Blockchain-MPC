@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from app.services.asset_service import AssetService
 from app.services.price_service import PriceService
+from app.storage.market_storage import MarketStorage
 from app.utils.logging_config import get_logger
 
 
@@ -13,6 +14,7 @@ class MarketService:
         self.logger = get_logger("app.services.market_service")
         self.asset_service = AssetService()
         self.price_service = PriceService()
+        self.storage = MarketStorage()
 
     def get_wallet_assets_with_prices(self, address: str, chains: list[str]) -> dict:
         """Aggregate wallet assets and enrich with Binance prices."""
@@ -81,6 +83,15 @@ class MarketService:
                 "asset_count": len(enriched_assets),
                 "assets": enriched_assets,
             }
+            try:
+                inserted_id = self.storage.save_asset_overview(address, chains, result)
+                self.logger.info("Stored wallet overview inserted_id=%s", inserted_id)
+            except Exception:
+                self.logger.exception(
+                    "Failed to store wallet overview address=%s chains=%s",
+                    address,
+                    chains,
+                )
             self.logger.info(
                 "Wallet aggregation completed address=%s asset_count=%s",
                 address,
