@@ -3,6 +3,7 @@ from __future__ import annotations
 from app.services.asset_service import AssetService
 from app.services.price_service import PriceService
 from app.storage.market_storage import MarketStorage
+from app.services.symbol_mapper_service import SymbolConvertService
 from app.utils.logging_config import get_logger
 
 
@@ -29,8 +30,23 @@ class MarketService:
                 or []
             )
 
+            for item in assets:
+                symbol = (item.get("tokenSymbol") or item.get("symbol") or "").upper()
+                if not symbol or not str(symbol).strip():
+                    self.logger.warning("Skipping asset with missing symbol: %s", item)
+                    continue
+                symbol = SymbolConvertService.map_to_binance_base_symbol(symbol)
+                price = item.get("tokenPrice")
+                try:
+                    id = self.price_service.update_get_ankr_token_price(symbol,price)
+                    self.logger.info("Fetched price for symbol=%s from Ankr price update id=%s", symbol, id)
+                except Exception:
+                    self.logger.exception("Failed to fetch price for symbol=%s", symbol)
+                    price = None
+
             normalized_assets = []
             if isinstance(assets, list):
+                self.logger.info("Assets is a list with length: %d", len(assets))
                 for item in assets:
                     if isinstance(item, dict):
                         normalized_assets.append(item)
@@ -42,8 +58,17 @@ class MarketService:
             symbols_to_query = []
             for item in normalized_assets:
                 symbol = (item.get("tokenSymbol") or item.get("symbol") or "").upper()
-                if symbol and symbol not in {"USDT", "USDC", "BUSD"}:
-                    symbols_to_query.append(f"{symbol}USDT")
+                if not symbol or not str(symbol).strip():
+                    self.logger.warning("Skipping asset with missing symbol: %s", item)
+                    continue 
+                symbol = SymbolConvertService.to_binance_symbol(symbol)
+                symbols_to_query.append(symbol)
+
+            # for item in symbols_to_query:
+            #     self.logger.info("Prepared symbol for price query: %s", item)
+            #     price = PriceService().get_symbol_price(item)
+            #     id = self.price_service.update_get_binance_token_price(item, price.get("price"))
+            #     self.logger.info("Updated price for symbol=%s with id=%s", item, id)
 
             def chunk_list(lst, size):
                 for i in range(0, len(lst), size):
@@ -60,8 +85,12 @@ class MarketService:
                 except Exception as e:
                     print("Chunk failed:", chunk, e)
 
-            price_map = {p["symbol"]: p["price"] for p in all_prices}
+            for price in all_prices:
+                self.logger.info("Fetched price: symbol=%s price=%s", price.get("symbol"), price.get("price"))
+                id = self.price_service.update_get_binance_token_price(SymbolConvertService.remove_usdt_suffix(price.get("symbol")), price.get("price"))
+                self.logger.info("Updated price for symbol=%s with id=%s", price.get("symbol"), id)
 
+            price_map = {p["symbol"]: p["price"] for p in all_prices}
             enriched_assets = []
             for item in normalized_assets:
                 symbol = (item.get("tokenSymbol") or item.get("symbol") or "").upper()

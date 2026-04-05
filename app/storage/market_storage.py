@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from decimal import Decimal
 from typing import Any
 
 from app.clients.mongo_client import MongoDBClient
@@ -68,3 +69,162 @@ class MarketStorage:
         }
         result = self.mongo_client.collection(self.config.asset_overviews_collection).insert_one(doc)
         return str(result.inserted_id)
+
+    def save_token_current_price(
+        self,
+        symbol: str,
+        binance_price: float | Decimal | str,
+        ankr_price: float | Decimal | str,
+    ) -> dict[str, Any]:
+        """
+        Save current token price and keep latest 50 history records.
+
+        MongoDB document structure example:
+        {
+            "symbol": "ETH",
+            "source": "token_price",
+            "current_price": {
+                "binance_price": 1800.12,
+                "ankr_price": 1799.98,
+                "timestamp": datetime(...)
+            },
+            "price_history": [
+                {
+                    "binance_price": 1800.12,
+                    "ankr_price": 1799.98,
+                    "timestamp": datetime(...)
+                }
+            ],
+            "created_at": datetime(...),
+            "updated_at": datetime(...)
+        }
+        """
+        now = self._now_utc()
+
+        price_record = {
+            "binance_price": float(binance_price),
+            "ankr_price": float(ankr_price),
+            "timestamp": now,
+        }
+
+        result = self.mongo_client.collection(
+            self.config.token_prices_collection
+        ).update_one(
+            {"symbol": symbol},
+            {
+                "$set": {
+                    "symbol": symbol,
+                    "current_price": price_record,
+                    "updated_at": now,
+                },
+                "$setOnInsert": {
+                    "created_at": now,
+                },
+                "$push": {
+                    "price_history": {
+                        "$each": [price_record],
+                        "$position": 0,
+                        "$slice": 50,
+                    }
+                },
+            },
+            upsert=True,
+            return_document=True,
+        )
+
+        return str(result["_id"])
+
+
+    def save_ankr_token_price(
+            self,
+            symbol: str,
+            price: float | Decimal | str,
+            price_time: datetime | None = None,
+        ) -> str:
+            """
+            Save latest Ankr token price and keep latest 50 Ankr history records.
+            """
+            now = self._now_utc()
+            record_time = price_time or now
+
+            ankr_record = {
+                "price": float(price),
+                "updated_at": record_time,
+            }
+
+            doc = self.mongo_client.collection(
+                self.config.token_prices_collection
+            ).find_one_and_update(
+                {
+                    "symbol": symbol,
+                },
+                {
+                    "$set": {
+                        "source": "token_price",
+                        "symbol": symbol,
+                        "ankr_current": ankr_record,
+                        "updated_at": now,
+                    },
+                    "$setOnInsert": {
+                        "created_at": now,
+                    },
+                    "$push": {
+                        "ankr_history": {
+                            "$each": [ankr_record],
+                            "$position": 0,
+                            "$slice": 50,
+                        }
+                    },
+                },
+                upsert=True,
+                return_document=True,
+            )
+
+            return str(doc["_id"])
+
+    def save_binance_token_price(
+        self,
+        symbol: str,
+        price: float | Decimal | str,
+        price_time: datetime | None = None,
+    ) -> str:
+        """
+        Save latest Binance token price and keep latest 50 Binance history records.
+        """
+        now = self._now_utc()
+        record_time = price_time or now
+
+        binance_record = {
+            "price": float(price),
+            "updated_at": record_time,
+        }
+
+        doc = self.mongo_client.collection(
+            self.config.token_prices_collection
+        ).find_one_and_update(
+            {
+                "symbol": symbol,
+            },
+            {
+                "$set": {
+                    "source": "token_price",
+                    "symbol": symbol,
+                    "binance_current": binance_record,
+                    "updated_at": now,
+                },
+                "$setOnInsert": {
+                    "created_at": now,
+                },
+                "$push": {
+                    "binance_history": {
+                        "$each": [binance_record],
+                        "$position": 0,
+                        "$slice": 50,
+                    }
+                },
+            },
+            upsert=True,
+            return_document=True,
+        )
+
+        return str(doc["_id"])

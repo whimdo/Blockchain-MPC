@@ -1,6 +1,9 @@
+from typing import Any
+
 from app.clients.binance_client import BinanceClient
 from app.storage.market_storage import MarketStorage
 from app.utils.logging_config import get_logger
+from app.services.symbol_mapper_service import SymbolConvertService
 
 
 class PriceService:
@@ -19,6 +22,8 @@ class PriceService:
             try:
                 inserted_id = self.storage.save_binance_prices([symbol], result)
                 self.logger.info("Stored Binance single price inserted_id=%s symbol=%s", inserted_id, symbol)
+                # id = self.storage.save_token_current_price(symbol, result.get("price"))
+                # self.logger.info("Stored token current price id=%s symbol=%s", id, symbol)
             except Exception:
                 self.logger.exception("Failed to store Binance single price symbol=%s", symbol)
             self.logger.info("Single symbol price fetched symbol=%s", symbol)
@@ -44,4 +49,47 @@ class PriceService:
             return result
         except Exception:
             self.logger.exception("Multiple symbol prices fetch failed symbols=%s", symbols)
+            raise
+
+    def update_get_binance_token_price(self, symbol: str, price: float = None) -> dict[str, Any]:
+        """Update binance current price for a token."""
+        try:
+            if price is None:
+                price_record = self.client.get_symbol_price(symbol)
+                self.logger.info("Fetched token price from Binance symbol=%s price=%s", symbol, price_record.get("price"))
+                price = price_record.get("price")
+            else:
+                price = str(price)
+                self.logger.info("Using provided token price symbol=%s price=%s", symbol, price)
+            try:
+                result = self.storage.save_binance_token_price(symbol, price)
+                self.logger.info("Updated token current price id=%s symbol=%s", result, symbol)
+                return result
+            except Exception:
+                self.logger.exception("Failed to update token current price symbol=%s", symbol)
+                raise
+        except Exception:
+            self.logger.exception("Failed to fetch token price from Binance symbol=%s", symbol)
+            raise
+
+    def update_get_ankr_token_price(self, symbol: str, price: float = None) -> dict[str, Any]:
+        """Update ankr current price for a token."""
+        try:
+            symbol = SymbolConvertService.map_to_binance_base_symbol(symbol)
+            if price is None:
+                price_record = self.client.get_symbol_price(symbol)
+                self.logger.info("Fetched token price from Binance symbol=%s price=%s", symbol, price_record.get("price"))
+                price = price_record.get("price")
+            else:
+                price = str(price)
+                self.logger.info("Using provided token price symbol=%s price=%s", symbol, price)
+            try:
+                result = self.storage.save_ankr_token_price(symbol, price)
+                self.logger.info("Updated Ankr token current price id=%s symbol=%s", result, symbol)
+                return result
+            except Exception:
+                self.logger.exception("Failed to update Ankr token current price symbol=%s", symbol)
+                raise
+        except Exception:
+            self.logger.exception("Failed to fetch token price from Binance symbol=%s", symbol)
             raise

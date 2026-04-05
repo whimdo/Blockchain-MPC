@@ -9,11 +9,13 @@ def main() -> None:
     """Run a quick test for multi-chain asset query."""
     service = AssetService()
     address = "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
-    chains = ["eth", "bsc", "polygon"]
+    # chains = ["eth", "bsc", "polygon"]
+    chains = ["bsc"]
 
     try:
         logger.info("Asset query test started")
         result = service.get_multichain_assets(address, chains)
+        logger.info(result)
         print(result)
         logger.info("Asset query test completed")
     except Exception:
