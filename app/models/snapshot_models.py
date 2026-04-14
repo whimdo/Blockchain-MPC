@@ -40,10 +40,11 @@ class SnapshotProposal:
 class SnapshotProposalVector:
     proposal_id: str
     space_id: str
-    text: str
-    keywords: list[str]
-    embedding_model: str
+    #text: str
+    #keywords: list[str]
+    #embedding_model: str
     vector: list[float]
+    keyword_vector: list[float]
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)

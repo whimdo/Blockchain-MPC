@@ -95,7 +95,7 @@ class AIService:
 
         system_prompt = (
             "You are a keyword extraction assistant. "
-            "Return exactly N keywords only, no explanation."
+            "Return exactly N keywords only, no explanation,in English."
         )
         user_prompt = (
             f"Extract {top_k} keywords from the following text.\n"
