@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 from kafka import KafkaConsumer, KafkaProducer
 
 from app.utils.logging_config import get_logger
@@ -59,12 +61,14 @@ class KafkaMQClient:
         self,
         topic: str,
         group_id: str | None = None,
+        **kwargs: Any,
     ) -> KafkaConsumer:
         return KafkaConsumer(
             topic,
             bootstrap_servers=self.bootstrap_servers,
             group_id=group_id or self.config.group_id,
             **self._auth_kwargs(),
+            **kwargs,
         )
 
 

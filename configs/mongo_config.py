@@ -15,6 +15,7 @@ class MongoConfig:
     binance_prices_collection: str
     asset_overviews_collection: str
     token_prices_collection: str 
+    snapshot_proposals_collection: str
     server_selection_timeout_ms: int
 
 
@@ -35,6 +36,10 @@ def load_mongo_config() -> MongoConfig:
         token_prices_collection=os.getenv(
             "MONGODB_COLLECTION_TOKEN_PRICES",
             "token_prices",
+        ),
+        snapshot_proposals_collection=os.getenv(
+            "MONGODB_COLLECTION_SNAPSHOT_PROPOSALS",
+            "snapshot_proposals",
         ),
         server_selection_timeout_ms=int(os.getenv("MONGODB_SERVER_SELECTION_TIMEOUT_MS", "5000")),
     )

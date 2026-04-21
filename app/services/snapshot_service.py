@@ -3,17 +3,21 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from app.models.snapshot_models import SnapshotProposal
+from app.models.snapshot_models import SnapshotProposal, SnapshotProposalVector
 from app.utils.logging_config import get_logger
 from app.clients.snapshot_client import SnapshotClient
 from app.services.ai_service import AIService
+from app.storage.snapshot_storage import SnapshotStorage
+from app.services.vector_service import VectorService
 
 
 class SnapshotService:
     def __init__(self) -> None:
         self.logger = get_logger("app.services.snapshot_service")
+        self.storage = SnapshotStorage()
         self.ai_service = AIService()
         self.client = SnapshotClient()
+        self.vector_service = VectorService()
 
     @staticmethod
     def clean_text(text: str) -> str:
@@ -110,3 +114,47 @@ class SnapshotService:
             len(proposals),
         )
         return proposals
+    
+    def get_proposal_vector(self, proposal: SnapshotProposal) -> SnapshotProposalVector | None:
+        """Generate vector payload for a single normalized proposal."""
+        if not proposal or not proposal.proposal_id or not proposal.space_id:
+            self.logger.warning("Invalid proposal input for vectorization.")
+            return None
+
+        try:
+            cleaned_text = (proposal.cleaned_text or "").strip()
+            if not cleaned_text:
+                title = self.clean_text(proposal.title or "")
+                body = self.clean_text(proposal.body or "")
+                discussion = self.clean_text(proposal.discussion or "")
+
+                cleaned_text = f"Title: {title}\nBody: {body}"
+                if discussion:
+                    cleaned_text += f"\nDiscussion: {discussion}"
+
+            keywords = [k for k in (proposal.keywords or []) if k and k.strip()]
+            if not keywords:
+                keywords = self.ai_service.extract_keywords_list(cleaned_text, top_k=10)
+
+            text_vector = self.vector_service.embed_long_text(cleaned_text)
+            keyword_vector = self.vector_service.embed_keywords(keywords)
+
+            if not text_vector or not keyword_vector:
+                self.logger.warning(
+                    "Vector generation returned empty vector proposal_id=%s",
+                    proposal.proposal_id,
+                )
+                return None
+
+            return SnapshotProposalVector(
+                proposal_id=proposal.proposal_id,
+                space_id=proposal.space_id,
+                vector=text_vector,
+                keyword_vector=keyword_vector,
+            )
+        except Exception:
+            self.logger.exception(
+                "Failed to generate proposal vector proposal_id=%s",
+                proposal.proposal_id,
+            )
+            return None
