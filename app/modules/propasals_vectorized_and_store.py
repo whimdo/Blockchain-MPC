@@ -12,6 +12,7 @@ from app.services.snapshot_service import SnapshotService
 from app.storage.snapshot_storage import SnapshotStorage
 from app.utils.logging_config import get_logger
 from configs.kafka_config import load_kafka_config
+from configs.snapshot_config import load_snapshot_config
 
 
 class ProposalsVectorizedAndStoreModule:
@@ -21,6 +22,7 @@ class ProposalsVectorizedAndStoreModule:
         self.logger = get_logger("app.modules.propasals_vectorized_and_store")
         self.kafka_config = load_kafka_config()
         self.kafka_client = KafkaClient()
+        self.snapshot_config = load_snapshot_config()
         self.snapshot_service = SnapshotService()
         self.snapshot_storage = SnapshotStorage()
 
