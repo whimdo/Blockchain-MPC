@@ -19,7 +19,7 @@ class ProposalsVectorizedAndStoreModule:
     """Consume Snapshot proposal messages, vectorize them, then store to MongoDB and Milvus."""
 
     def __init__(self) -> None:
-        self.logger = get_logger("app.modules.propasals_vectorized_and_store")
+        self.logger = get_logger("app.modules.proposals_vectorized_and_store")
         self.kafka_config = load_kafka_config()
         self.kafka_client = KafkaClient()
         self.snapshot_config = load_snapshot_config()
@@ -75,10 +75,19 @@ class ProposalsVectorizedAndStoreModule:
 
     def _process_one_message(self, message_value: Any) -> None:
         """Parse one Kafka message, vectorize proposal, and persist both records."""
+        self.logger.info("Processing message value: %s", message_value)
         payload = self._decode_message_value(message_value)
         proposal = self._build_proposal_from_payload(payload)
+        if proposal.keywords == []:
+            self.logger.info(
+                "Skip low-quality proposal proposal_id=%s space_id=%s",
+                proposal.proposal_id,
+                proposal.space_id,
+            )
+            self.snapshot_storage.save_snapshot_proposal(proposal)
+            return
+        
         vector = self.snapshot_service.get_proposal_vector(proposal)
-
         if vector is None:
             raise RuntimeError(f"Failed to build vector proposal_id={proposal.proposal_id}")
 
@@ -98,7 +107,7 @@ class ProposalsVectorizedAndStoreModule:
             topic=topic,
             group_id=group_id,
             enable_auto_commit=False,
-            auto_offset_reset="latest",
+            auto_offset_reset="earliest",
         )
 
         self.logger.info(
@@ -112,7 +121,8 @@ class ProposalsVectorizedAndStoreModule:
             for message in consumer:
                 try:
                     self._process_one_message(message.value)
-                    consumer.commit()
+                    self.logger.info("Message processed successfully worker=%s partition=%s offset=%s", worker_index, getattr(message, "partition", "unknown"), getattr(message, "offset", "unknown"))
+                    consumer.commit_async()
                 except Exception:
                     # Commit even on bad messages to avoid poison message blocking the pipeline.
                     self.logger.exception(
@@ -121,7 +131,7 @@ class ProposalsVectorizedAndStoreModule:
                         getattr(message, "partition", "unknown"),
                         getattr(message, "offset", "unknown"),
                     )
-                    consumer.commit()
+                    consumer.commit_async()
         finally:
             consumer.close()
 
@@ -141,6 +151,7 @@ class ProposalsVectorizedAndStoreModule:
         )
 
         if count == 1:
+            self.logger.info("Running consumer once in main thread")
             self._consumer_loop(worker_index=1, group_id=group_id)
             return
 

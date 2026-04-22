@@ -84,7 +84,7 @@ class AIService:
         sorted_words = sorted(freq.items(), key=lambda x: x[1], reverse=True)
         return [w for w, _ in sorted_words[:top_k]]
 
-    def extract_keywords_list(self, text: str, top_k: int = 10) -> list[str]:
+    def extract_keywords_list(self, text: str, top_k: int = 5) -> list[str]:
         """Extract top_k keywords using AI first, then fallback."""
         if top_k <= 0:
             raise ValueError("top_k must be > 0")
@@ -101,7 +101,7 @@ class AIService:
             f"Extract {top_k} keywords from the following text.\n"
             "Output format must be exactly like this:\n"
             "[ word1、word2、word3 ]\n"
-            "Use Chinese delimiter '、'.\n"
+            "Use English delimiter '、'.\n"
             f"Text:\n{cleaned_text}"
         )
 

@@ -16,32 +16,39 @@ function Stop-FromPidFile {
         return
     }
 
-    $pidText = (Get-Content -Path $PidFile -ErrorAction SilentlyContinue | Select-Object -First 1).Trim()
+    $pidText = (Get-Content -Path $PidFile -ErrorAction SilentlyContinue | Select-Object -First 1)
+    if ($null -eq $pidText) {
+        Write-Host "$Name PID file empty, skip."
+        Remove-Item -Path $PidFile -Force -ErrorAction SilentlyContinue
+        return
+    }
+    $pidText = $pidText.ToString().Trim()
     if (-not $pidText) {
         Write-Host "$Name PID file empty, skip."
         Remove-Item -Path $PidFile -Force -ErrorAction SilentlyContinue
         return
     }
 
-    $pid = 0
-    if (-not [int]::TryParse($pidText, [ref]$pid)) {
+    $targetPid = 0
+    if (-not [int]::TryParse($pidText, [ref]$targetPid)) {
         Write-Host "$Name PID invalid ($pidText), skip."
         Remove-Item -Path $PidFile -Force -ErrorAction SilentlyContinue
         return
     }
 
-    $proc = Get-Process -Id $pid -ErrorAction SilentlyContinue
+    $proc = Get-Process -Id $targetPid -ErrorAction SilentlyContinue
     if ($proc) {
-        & taskkill /PID $pid /T /F | Out-Null
-        Write-Host "$Name stopped. PID=$pid (process tree)"
+        & taskkill /PID $targetPid /T /F | Out-Null
+        Write-Host "$Name stopped. PID=$targetPid (process tree)"
     } else {
-        Write-Host "$Name process already stopped. PID=$pid"
+        Write-Host "$Name process already stopped. PID=$targetPid"
     }
 
     Remove-Item -Path $PidFile -Force -ErrorAction SilentlyContinue
 }
 
 Stop-FromPidFile -PidFile (Join-Path $PidDir "proposals_vectorized_and_store.pid") -Name "Module"
+Stop-FromPidFile -PidFile (Join-Path $PidDir "proposals_get_and_push.pid") -Name "Module"
 Stop-FromPidFile -PidFile (Join-Path $PidDir "kafka.pid") -Name "Kafka"
 
 Write-Host "Done."

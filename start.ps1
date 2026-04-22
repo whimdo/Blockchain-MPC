@@ -11,39 +11,49 @@ if (-not (Test-Path $PidDir)) {
     New-Item -ItemType Directory -Path $PidDir | Out-Null
 }
 
-if (-not $env:KAFKA_HOME) {
-    throw "KAFKA_HOME is not set."
-}
+$pythonInvoke = $null
 
-$kafkaScript = Join-Path $env:KAFKA_HOME "bin\windows\kafka-server-start.bat"
-$kafkaConfig = Join-Path $env:KAFKA_HOME "config\server.properties"
-if (-not (Test-Path $kafkaScript)) {
-    throw "kafka-server-start.bat not found under KAFKA_HOME."
-}
-
-$pythonCmd = Get-Command py -ErrorAction SilentlyContinue
-if ($pythonCmd) {
-    $pythonInvoke = 'py -3'
-} else {
-    $python = Get-Command python -ErrorAction SilentlyContinue
-    if (-not $python) {
-        throw "Python runtime not found."
+if ($env:VIRTUAL_ENV) {
+    $venvPython = Join-Path $env:VIRTUAL_ENV "Scripts\python.exe"
+    if (Test-Path $venvPython) {
+        $pythonInvoke = "`"$venvPython`""
     }
-    $pythonInvoke = "python"
 }
 
-Write-Host "Starting Kafka server in background..."
-$kafkaLog = Join-Path $LogDir "kafka.log"
-$kafkaCmd = "`"$kafkaScript`" `"$kafkaConfig`" > `"$kafkaLog`" 2>&1"
-$kafkaProc = Start-Process -FilePath "cmd.exe" -ArgumentList "/c $kafkaCmd" -PassThru -WindowStyle Hidden
-Set-Content -Path (Join-Path $PidDir "kafka.pid") -Value $kafkaProc.Id -Encoding ascii
-Write-Host "Kafka started. PID=$($kafkaProc.Id)"
+if (-not $pythonInvoke) {
+    $localVenvPython = Join-Path $ProjectDir ".venv\Scripts\python.exe"
+    if (Test-Path $localVenvPython) {
+        $pythonInvoke = "`"$localVenvPython`""
+    }
+}
+
+if (-not $pythonInvoke) {
+    $pythonCmd = Get-Command py -ErrorAction SilentlyContinue
+    if ($pythonCmd) {
+        $pythonInvoke = "py -3"
+    } else {
+        $python = Get-Command python -ErrorAction SilentlyContinue
+        if (-not $python) {
+            throw "Python runtime not found."
+        }
+        $pythonInvoke = "python"
+    }
+}
+
+Write-Host "Using Python: $pythonInvoke"
 
 Write-Host "Starting proposals vectorize-and-store module in background..."
 $moduleLog = Join-Path $LogDir "proposals_vectorized_and_store.log"
-$moduleCmd = "cd /d `"$ProjectDir`" && $pythonInvoke -m app.modules.propasals_vectorized_and_store > `"$moduleLog`" 2>&1"
+$moduleCmd = "cd /d `"$ProjectDir`" && $pythonInvoke -m app.modules.proposals_vectorized_and_store > `"$moduleLog`" 2>&1"
 $moduleProc = Start-Process -FilePath "cmd.exe" -ArgumentList "/c $moduleCmd" -PassThru -WindowStyle Hidden
 Set-Content -Path (Join-Path $PidDir "proposals_vectorized_and_store.pid") -Value $moduleProc.Id -Encoding ascii
 Write-Host "Module started. PID=$($moduleProc.Id)"
+
+Write-Host "Starting proposals get-and-push module in background..."
+$module2Log = Join-Path $LogDir "proposals_get_and_push.log"
+$module2Cmd = "cd /d `"$ProjectDir`" && $pythonInvoke -m app.modules.proposals_get_and_push > `"$module2Log`" 2>&1"
+$module2Proc = Start-Process -FilePath "cmd.exe" -ArgumentList "/c $module2Cmd" -PassThru -WindowStyle Hidden
+Set-Content -Path (Join-Path $PidDir "proposals_get_and_push.pid") -Value $module2Proc.Id -Encoding ascii
+Write-Host "Module started. PID=$($module2Proc.Id)"
 
 Write-Host "Done. Logs: $LogDir"

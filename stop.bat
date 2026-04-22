@@ -4,9 +4,17 @@ setlocal
 echo Stopping proposals vectorize-and-store module...
 taskkill /FI "WINDOWTITLE eq PROPOSALS_VECTORIZED_STORE_BLOCKCHAIN_MPC" /T /F >nul 2>nul
 if %errorlevel%==0 (
-    echo Module stopped.
+    echo Vectorize-and-store module stopped.
 ) else (
-    echo Module process not found (or already stopped).
+    echo Vectorize-and-store module not found (or already stopped).
+)
+
+echo Stopping proposals get-and-push module...
+taskkill /FI "WINDOWTITLE eq PROPOSALS_GET_AND_PUSH_BLOCKCHAIN_MPC" /T /F >nul 2>nul
+if %errorlevel%==0 (
+    echo Get-and-push module stopped.
+) else (
+    echo Get-and-push module not found (or already stopped).
 )
 
 echo Stopping Kafka server...

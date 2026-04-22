@@ -59,6 +59,97 @@ class SnapshotService:
         sorted_words = sorted(freq.items(), key=lambda x: x[1], reverse=True)
         return [w for w, _ in sorted_words[:top_k]]
 
+    def is_low_quality_proposal(
+        self,
+        proposal: SnapshotProposal,
+        min_title_len: int = 3,
+        min_content_len: int = 40,
+    ) -> bool:
+        """
+        Determine whether a normalized Snapshot proposal is low quality.
+
+        Current rules:
+        1) Missing title
+        2) Both body and discussion are empty
+        3) Title and total content are too short
+        """
+        if not proposal:
+            return True
+
+        title = self.clean_text(proposal.title or "")
+        body = self.clean_text(proposal.body or "")
+        discussion = self.clean_text(proposal.discussion or "")
+        content = f"{body} {discussion}".strip()
+
+        if not title:
+            return True
+
+        if not body and not discussion:
+            return True
+
+        if len(title) < min_title_len and len(content) < min_content_len:
+            return True
+
+        return False
+
+    def is_low_quality_proposal_raw(
+            self, 
+            raw: dict[str, Any], 
+            min_title_len: int = 3, 
+            min_content_len: int = 40
+    ) -> bool:
+        '''
+        Determine whether a raw Snapshot proposal payload is 
+        low quality using the same rules as the normalized version. 
+        This can be used to skip normalization and vectorization for 
+        obviously low-quality proposals.
+        '''
+        title = self.clean_text(raw.get("title", ""))
+        body = self.clean_text(raw.get("body", ""))
+        discussion = self.clean_text(raw.get("discussion", "") or "")
+        content = f"{body} {discussion}".strip()
+
+        if not title:
+            return True
+
+        if not body and not discussion:
+            return True
+
+        if len(title) < min_title_len and len(content) < min_content_len:
+            return True
+
+        return False
+
+    def is_low_quality_proposal_raw_by_title_and_content(
+            self,
+            title: str,
+            body: str, 
+            discussion: str, 
+            min_title_len: int = 3, 
+            min_content_len: int = 40
+        ) -> bool:
+        '''
+        Determine whether a raw Snapshot proposal is low quality using title, 
+        body, and discussion text directly. 
+        This can be used in scenarios where we want to quickly assess proposal 
+        quality without constructing the full raw dict.
+        '''
+        title_clean = self.clean_text(title)
+        body_clean = self.clean_text(body)
+        discussion_clean = self.clean_text(discussion)
+        content = f"{body_clean} {discussion_clean}".strip()
+
+        if not title_clean:
+            return True
+
+        if not body_clean and not discussion_clean:
+            return True
+
+        if len(title_clean) < min_title_len and len(content) < min_content_len:
+            return True
+
+        return False
+
     def normalize_proposal(self, raw: dict[str, Any]) -> SnapshotProposal:
         title = self.clean_text(raw.get("title", ""))
         body = self.clean_text(raw.get("body", ""))
@@ -68,7 +159,15 @@ class SnapshotService:
         if discussion:
             cleaned_text += f"\nDiscussion: {discussion}"
 
-        keywords = self.ai_service.extract_keywords_list(cleaned_text, top_k=10)
+        if self.is_low_quality_proposal_raw_by_title_and_content(title, body, discussion):
+            self.logger.info(
+                "Identified low-quality proposal during normalization proposal_id=%s space_id=%s",
+                raw.get("id", ""),
+                raw.get("space", {}).get("id", ""),
+            )
+            keywords = []
+        else:
+            keywords = self.ai_service.extract_keywords_list(cleaned_text, top_k=5)
 
         space = raw.get("space", {}) or {}
 
@@ -120,6 +219,14 @@ class SnapshotService:
         if not proposal or not proposal.proposal_id or not proposal.space_id:
             self.logger.warning("Invalid proposal input for vectorization.")
             return None
+
+        # if self.is_low_quality_proposal(proposal):
+        #     self.logger.info(
+        #         "Skip low-quality proposal proposal_id=%s space_id=%s",
+        #         proposal.proposal_id,
+        #         proposal.space_id,
+        #     )
+        #     return None
 
         try:
             cleaned_text = (proposal.cleaned_text or "").strip()
