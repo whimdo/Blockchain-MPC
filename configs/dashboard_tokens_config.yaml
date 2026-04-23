@@ -1,0 +1,217 @@
+dashboard_tokens:
+  - symbol: BTC
+    name: Bitcoin
+    display_name: Bitcoin
+    primary_chain: bitcoin
+    category: store_of_value
+    price_symbol: BTCUSDT
+    logo: /assets/tokens/btc.png
+    description: The leading crypto asset widely used as a store of value.
+    enabled: true
+    show_on_dashboard: true
+    sort_order: 1
+    tags:
+      - Store of Value
+      - Mainstream
+      - Layer1
+
+  - symbol: ETH
+    name: Ethereum
+    display_name: Ethereum
+    primary_chain: ethereum
+    category: native
+    price_symbol: ETHUSDT
+    logo: /assets/tokens/eth.png
+    description: The native asset of Ethereum and a core asset for smart contract ecosystems.
+    enabled: true
+    show_on_dashboard: true
+    sort_order: 2
+    tags:
+      - Layer1
+      - Native
+      - Smart Contract
+
+  - symbol: USDT
+    name: Tether
+    display_name: Tether
+    primary_chain: ethereum
+    category: stablecoin
+    price_symbol: USDTUSDT
+    logo: /assets/tokens/usdt.png
+    description: A widely used stablecoin pegged to the US dollar.
+    enabled: true
+    show_on_dashboard: true
+    sort_order: 3
+    tags:
+      - Stablecoin
+      - Payments
+      - Mainstream
+
+  - symbol: USDC
+    name: USD Coin
+    display_name: USD Coin
+    primary_chain: ethereum
+    category: stablecoin
+    price_symbol: USDCUSDT
+    logo: /assets/tokens/usdc.png
+    description: A major stablecoin pegged to the US dollar and widely used in DeFi.
+    enabled: true
+    show_on_dashboard: true
+    sort_order: 4
+    tags:
+      - Stablecoin
+      - DeFi
+      - Mainstream
+
+  - symbol: BNB
+    name: BNB
+    display_name: BNB
+    primary_chain: bsc
+    category: native
+    price_symbol: BNBUSDT
+    logo: /assets/tokens/bnb.png
+    description: The native asset of the BNB Smart Chain ecosystem.
+    enabled: true
+    show_on_dashboard: true
+    sort_order: 5
+    tags:
+      - Layer1
+      - Native
+      - Exchange Ecosystem
+
+  - symbol: SOL
+    name: Solana
+    display_name: Solana
+    primary_chain: solana
+    category: native
+    price_symbol: SOLUSDT
+    logo: /assets/tokens/sol.png
+    description: The native asset of Solana, a high-performance blockchain ecosystem.
+    enabled: true
+    show_on_dashboard: true
+    sort_order: 6
+    tags:
+      - Layer1
+      - Native
+      - High Performance
+
+  - symbol: ADA
+    name: Cardano
+    display_name: Cardano
+    primary_chain: cardano
+    category: native
+    price_symbol: ADAUSDT
+    logo: /assets/tokens/ada.png
+    description: The native asset of the Cardano blockchain ecosystem.
+    enabled: true
+    show_on_dashboard: true
+    sort_order: 7
+    tags:
+      - Layer1
+      - Native
+      - Smart Contract
+
+  - symbol: AVAX
+    name: Avalanche
+    display_name: Avalanche
+    primary_chain: avalanche
+    category: native
+    price_symbol: AVAXUSDT
+    logo: /assets/tokens/avax.png
+    description: The native asset of the Avalanche blockchain ecosystem.
+    enabled: true
+    show_on_dashboard: true
+    sort_order: 8
+    tags:
+      - Layer1
+      - Native
+      - Smart Contract
+
+  - symbol: XRP
+    name: XRP
+    display_name: XRP
+    primary_chain: xrp_ledger
+    category: payments
+    price_symbol: XRPUSDT
+    logo: /assets/tokens/xrp.png
+    description: A major crypto asset focused on payments and value transfer.
+    enabled: true
+    show_on_dashboard: true
+    sort_order: 9
+    tags:
+      - Payments
+      - Mainstream
+      - High Market Cap
+
+  - symbol: TRX
+    name: TRON
+    display_name: TRON
+    primary_chain: tron
+    category: native
+    price_symbol: TRXUSDT
+    logo: /assets/tokens/trx.png
+    description: The native asset of the TRON ecosystem, commonly used for on-chain transfers and applications.
+    enabled: true
+    show_on_dashboard: true
+    sort_order: 10
+    tags:
+      - Layer1
+      - Native
+      - Payments
+
+  - symbol: DOGE
+    name: Dogecoin
+    display_name: Dogecoin
+    primary_chain: dogecoin
+    category: meme
+    price_symbol: DOGEUSDT
+    logo: /assets/tokens/doge.png
+    description: A highly recognized crypto asset with strong market attention and community popularity.
+    enabled: true
+    show_on_dashboard: true
+    sort_order: 11
+    tags:
+      - Meme
+      - Mainstream
+      - High Attention
+
+  - symbol: LINK
+    name: Chainlink
+    display_name: Chainlink
+    primary_chain: ethereum
+    category: oracle
+    price_symbol: LINKUSDT
+    logo: /assets/tokens/link.png
+    description: A leading oracle network token widely used in smart contract data services.
+    enabled: true
+    show_on_dashboard: true
+    sort_order: 12
+    tags:
+      - Oracle
+      - DeFi
+      - Infrastructure
+
+dashboard_groups:
+  - group_name: 核心资产
+    group_key: core_assets
+    symbols:
+      - BTC
+      - ETH
+      - USDT
+      - USDC
+
+  - group_name: 主流公链
+    group_key: major_chains
+    symbols:
+      - BNB
+      - SOL
+      - ADA
+      - AVAX
+
+  - group_name: 高热度资产
+    group_key: high_attention_assets
+    symbols:
+      - XRP
+      - TRX
+      - DOGE
+      - LINK

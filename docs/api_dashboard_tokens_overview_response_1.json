@@ -1,0 +1,229 @@
+{
+    "page_updated_at": "2026-04-23T13:37:41.589545Z",
+    "total_tokens": 12,
+    "group_count": 3,
+    "groups": [
+        {
+            "group_name": "核心资产",
+            "group_key": "core_assets",
+            "cards": [
+                {
+                    "symbol": "BTC",
+                    "name": "Bitcoin",
+                    "display_name": "Bitcoin",
+                    "primary_chain": "bitcoin",
+                    "category": "store_of_value",
+                    "logo": "/assets/tokens/btc.png",
+                    "price": 66947.82,
+                    "price_display": "66947.82 USDT",
+                    "updated_at": "2026-04-05T14:07:06.855000Z",
+                    "status": "partial",
+                    "tags": [
+                        "Store of Value",
+                        "Mainstream",
+                        "Layer1"
+                    ]
+                },
+                {
+                    "symbol": "ETH",
+                    "name": "Ethereum",
+                    "display_name": "Ethereum",
+                    "primary_chain": "ethereum",
+                    "category": "native",
+                    "logo": "/assets/tokens/eth.png",
+                    "price": 2041.19,
+                    "price_display": "2041.19 USDT",
+                    "updated_at": "2026-04-05T14:07:06.830000Z",
+                    "status": "online",
+                    "tags": [
+                        "Layer1",
+                        "Native",
+                        "Smart Contract"
+                    ]
+                },
+                {
+                    "symbol": "USDT",
+                    "name": "Tether",
+                    "display_name": "Tether",
+                    "primary_chain": "ethereum",
+                    "category": "stablecoin",
+                    "logo": "/assets/tokens/usdt.png",
+                    "price": 0.9999873476327934,
+                    "price_display": "1.00 USDT",
+                    "updated_at": "2026-04-05T14:04:29.042000Z",
+                    "status": "online",
+                    "tags": [
+                        "Stablecoin",
+                        "Payments",
+                        "Mainstream"
+                    ]
+                },
+                {
+                    "symbol": "USDC",
+                    "name": "USD Coin",
+                    "display_name": "USD Coin",
+                    "primary_chain": "ethereum",
+                    "category": "stablecoin",
+                    "logo": "/assets/tokens/usdc.png",
+                    "price": 1.0001,
+                    "price_display": "1.00 USDT",
+                    "updated_at": "2026-04-05T14:07:06.833000Z",
+                    "status": "online",
+                    "tags": [
+                        "Stablecoin",
+                        "DeFi",
+                        "Mainstream"
+                    ]
+                }
+            ]
+        },
+        {
+            "group_name": "主流公链",
+            "group_key": "major_chains",
+            "cards": [
+                {
+                    "symbol": "BNB",
+                    "name": "BNB",
+                    "display_name": "BNB",
+                    "primary_chain": "bsc",
+                    "category": "native",
+                    "logo": "/assets/tokens/bnb.png",
+                    "price": 590.19,
+                    "price_display": "590.19 USDT",
+                    "updated_at": "2026-04-05T14:07:06.889000Z",
+                    "status": "online",
+                    "tags": [
+                        "Layer1",
+                        "Native",
+                        "Exchange Ecosystem"
+                    ]
+                },
+                {
+                    "symbol": "SOL",
+                    "name": "Solana",
+                    "display_name": "Solana",
+                    "primary_chain": "solana",
+                    "category": "native",
+                    "logo": "/assets/tokens/sol.png",
+                    "price": 79.39,
+                    "price_display": "79.39 USDT",
+                    "updated_at": "2026-04-05T14:07:06.892000Z",
+                    "status": "partial",
+                    "tags": [
+                        "Layer1",
+                        "Native",
+                        "High Performance"
+                    ]
+                },
+                {
+                    "symbol": "ADA",
+                    "name": "Cardano",
+                    "display_name": "Cardano",
+                    "primary_chain": "cardano",
+                    "category": "native",
+                    "logo": "/assets/tokens/ada.png",
+                    "price": 0.2421,
+                    "price_display": "0.24 USDT",
+                    "updated_at": "2026-04-05T14:07:06.993000Z",
+                    "status": "partial",
+                    "tags": [
+                        "Layer1",
+                        "Native",
+                        "Smart Contract"
+                    ]
+                },
+                {
+                    "symbol": "AVAX",
+                    "name": "Avalanche",
+                    "display_name": "Avalanche",
+                    "primary_chain": "avalanche",
+                    "category": "native",
+                    "logo": "/assets/tokens/avax.png",
+                    "price": null,
+                    "price_display": "--",
+                    "updated_at": null,
+                    "status": "unavailable",
+                    "tags": [
+                        "Layer1",
+                        "Native",
+                        "Smart Contract"
+                    ]
+                }
+            ]
+        },
+        {
+            "group_name": "高热度资产",
+            "group_key": "high_attention_assets",
+            "cards": [
+                {
+                    "symbol": "XRP",
+                    "name": "XRP",
+                    "display_name": "XRP",
+                    "primary_chain": "xrp_ledger",
+                    "category": "payments",
+                    "logo": "/assets/tokens/xrp.png",
+                    "price": null,
+                    "price_display": "--",
+                    "updated_at": null,
+                    "status": "unavailable",
+                    "tags": [
+                        "Payments",
+                        "Mainstream",
+                        "High Market Cap"
+                    ]
+                },
+                {
+                    "symbol": "TRX",
+                    "name": "TRON",
+                    "display_name": "TRON",
+                    "primary_chain": "tron",
+                    "category": "native",
+                    "logo": "/assets/tokens/trx.png",
+                    "price": 0.3182979400560624,
+                    "price_display": "0.32 USDT",
+                    "updated_at": "2026-04-05T14:04:29.437000Z",
+                    "status": "partial",
+                    "tags": [
+                        "Layer1",
+                        "Native",
+                        "Payments"
+                    ]
+                },
+                {
+                    "symbol": "DOGE",
+                    "name": "Dogecoin",
+                    "display_name": "Dogecoin",
+                    "primary_chain": "dogecoin",
+                    "category": "meme",
+                    "logo": "/assets/tokens/doge.png",
+                    "price": null,
+                    "price_display": "--",
+                    "updated_at": null,
+                    "status": "unavailable",
+                    "tags": [
+                        "Meme",
+                        "Mainstream",
+                        "High Attention"
+                    ]
+                },
+                {
+                    "symbol": "LINK",
+                    "name": "Chainlink",
+                    "display_name": "Chainlink",
+                    "primary_chain": "ethereum",
+                    "category": "oracle",
+                    "logo": "/assets/tokens/link.png",
+                    "price": 8.56,
+                    "price_display": "8.56 USDT",
+                    "updated_at": "2026-04-05T14:07:06.867000Z",
+                    "status": "online",
+                    "tags": [
+                        "Oracle",
+                        "DeFi",
+                        "Infrastructure"
+                    ]
+                }
+            ]
+        }
+    ]
+}

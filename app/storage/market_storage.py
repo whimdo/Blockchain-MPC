@@ -228,3 +228,32 @@ class MarketStorage:
         )
 
         return str(doc["_id"])
+    
+    def find_token_price(self, symbol: str) -> float:
+        """Find token price by symbol."""
+        doc = self.mongo_client.collection(self.config.token_prices_collection).find_one({"symbol": symbol})
+        if not doc:
+            raise ValueError(f"No price record found for symbol: {symbol}")
+        binance_price = doc.get("binance_current", {}).get("price")
+        ankr_price = doc.get("ankr_current", {}).get("price")
+        if binance_price is not None:
+            return binance_price
+        elif ankr_price is not None:
+            return ankr_price
+        else:
+            raise ValueError(f"No valid price found for symbol: {symbol}")
+        
+    def find_token_price_and_updated_at(self, symbol: str) -> dict[str, Any]:
+        """Find token price and updated_at by symbol."""
+        doc = self.mongo_client.collection(self.config.token_prices_collection).find_one({"symbol": symbol})
+        if not doc:
+            raise ValueError(f"No price record found for symbol: {symbol}")
+        binance_price = doc.get("binance_current", {}).get("price")
+        ankr_price = doc.get("ankr_current", {}).get("price")
+        updated_at = doc.get("updated_at")
+        if binance_price is not None:
+            return {"price": binance_price, "updated_at": updated_at}
+        elif ankr_price is not None:
+            return {"price": ankr_price, "updated_at": updated_at}
+        else:
+            raise ValueError(f"No valid price found for symbol: {symbol}")

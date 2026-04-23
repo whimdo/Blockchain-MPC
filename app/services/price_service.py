@@ -93,3 +93,13 @@ class PriceService:
         except Exception:
             self.logger.exception("Failed to fetch token price from Binance symbol=%s", symbol)
             raise
+
+    def find_token_price(self, symbol: str) -> dict[str, Any]:
+        """Find token price by symbol."""
+        try:
+            result = self.storage.find_token_price_and_updated_at(symbol)
+            self.logger.info("Token price found for symbol=%s", symbol)
+            return result
+        except Exception:
+            self.logger.exception("Failed to find token price for symbol=%s", symbol)
+            raise
