@@ -109,7 +109,7 @@ class MarketStorage:
 
         result = self.mongo_client.collection(
             self.config.token_prices_collection
-        ).update_one(
+        ).find_one_and_update(
             {"symbol": symbol},
             {
                 "$set": {
@@ -228,6 +228,20 @@ class MarketStorage:
         )
 
         return str(doc["_id"])
+    
+    def save_token_current_price_new(
+        self,
+        symbol: str,
+        binance_price: float | Decimal | str,
+        ankr_price: float | Decimal | str,
+    )->list[str]:
+            try:
+                binanc_result = self.save_binance_token_price(symbol, binance_price)
+                ankr_result = self.save_ankr_token_price(symbol, ankr_price)
+                return [binanc_result, ankr_result]
+            except Exception:
+                self.logger.exception("Failed to save token price symbol=%s", symbol)
+                raise
     
     def find_token_price(self, symbol: str) -> float:
         """Find token price by symbol."""

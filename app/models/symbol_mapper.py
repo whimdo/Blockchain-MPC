@@ -118,4 +118,5 @@ COMMON_TOKEN_TO_BINANCE_BASE: dict[str, str] = {
     # ===== 特殊 =====
     "ETH2": "ETH",
     "BTTC": "BTC",
+    
 }
