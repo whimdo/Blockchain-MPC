@@ -229,6 +229,57 @@ class MarketStorage:
 
         return str(doc["_id"])
     
+    def save_binance_tokens_price(
+        self,
+        symbols: list[str],
+        prices: list[float | Decimal | str],
+        price_time: datetime | None = None,
+    ) -> list[str]:
+        """
+        Save latest Binance token prices for multiple symbols and keep latest 50 history records for each symbol.
+        """
+        now = self._now_utc()
+        record_time = price_time or now
+
+        ids = []
+        for symbol, price in zip(symbols, prices):
+            binance_record = {
+                "price": float(price),
+                "updated_at": record_time,
+            }
+
+            doc = self.mongo_client.collection(
+                self.config.token_prices_collection
+            ).find_one_and_update(
+                {
+                    "symbol": symbol,
+                },
+                {
+                    "$set": {
+                        "source": "token_price",
+                        "symbol": symbol,
+                        "binance_current": binance_record,
+                        "updated_at": now,
+                    },
+                    "$setOnInsert": {
+                        "created_at": now,
+                    },
+                    "$push": {
+                        "binance_history": {
+                            "$each": [binance_record],
+                            "$position": 0,
+                            "$slice": 50,
+                        }
+                    },
+                },
+                upsert=True,
+                return_document=True,
+            )
+
+            ids.append(str(doc["_id"]))
+
+        return ids
+    
     def save_token_current_price_new(
         self,
         symbol: str,

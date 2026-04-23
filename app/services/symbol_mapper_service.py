@@ -61,6 +61,16 @@ class SymbolConvertService:
         return f"{base_symbol}{quote_symbol}"
     
     @staticmethod
+    def to_binance_symbols(symbols: list[str], quote_asset: str = "USDT") -> list[str]:
+        """
+        Convert a list of token symbols to Binance trading pair symbols.
+
+        Example:
+            [ETH, WETH, WBTC] -> [ETHUSDT, ETHUSDT, BTCUSDT]
+        """
+        return [SymbolConvertService.to_binance_symbol(symbol, quote_asset) for symbol in symbols]
+
+    @staticmethod
     def remove_usdt_suffix(symbol: str) -> str:
         """
         Remove USDT suffix from a Binance trading pair symbol.
@@ -73,3 +83,13 @@ class SymbolConvertService:
         if symbol and symbol.endswith("USDT"):
             return symbol[:-4]
         return symbol
+    
+    @staticmethod
+    def remove_usdt_suffixes(symbols: list[str]) -> list[str]:
+        """
+        Remove USDT suffix from a list of Binance trading pair symbols.
+
+        Example:
+            [ETHUSDT, BTCUSDT, BNBUSDT] -> [ETH, BTC, BNB]
+        """
+        return [SymbolConvertService.remove_usdt_suffix(symbol) for symbol in symbols]
