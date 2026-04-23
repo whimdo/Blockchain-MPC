@@ -7,6 +7,7 @@ from app.models.snapshot_models import SnapshotProposal, SnapshotProposalVector
 from app.utils.logging_config import get_logger
 from app.clients.snapshot_client import SnapshotClient
 from app.services.ai_service import AIService
+from app.services.milvus_service import MilvusService
 from app.storage.snapshot_storage import SnapshotStorage
 from app.services.vector_service import VectorService
 
@@ -18,6 +19,8 @@ class SnapshotService:
         self.ai_service = AIService()
         self.client = SnapshotClient()
         self.vector_service = VectorService()
+        self.milvus_service = MilvusService()
+
 
     @staticmethod
     def clean_text(text: str) -> str:
@@ -265,3 +268,170 @@ class SnapshotService:
                 proposal.proposal_id,
             )
             return None
+
+    def search_similar_proposals_by_keywords(
+        self,
+        keywords: list[str],
+        space_id: str | None = None,
+        top_k: int = 2,
+    ) -> list[SnapshotProposal]:
+        clean_keywords = [keyword.strip() for keyword in keywords if keyword and keyword.strip()]
+        if not clean_keywords:
+            return []
+
+        keyword_vector = self.vector_service.embed_keywords(clean_keywords)
+        if not keyword_vector:
+            self.logger.warning(
+                "Keyword embedding returned empty vector for keywords=%s",
+                clean_keywords,
+            )
+            return []
+
+        expr = ""
+        if space_id:
+            expr = f"space_id == '{space_id}'"
+
+        search_hits = self.milvus_service.search_proposals_by_keyword_vector(
+            query_vector=keyword_vector,
+            top_k=top_k,
+            expr=expr or None,
+            output_fields=["proposal_id", "space_id"],
+        )
+        if not search_hits:
+            return []
+
+        collection = self.storage.mongo_client.collection(
+            self.storage.mongo_config.snapshot_proposals_collection
+        )
+        proposals: list[SnapshotProposal] = []
+
+        for hit in search_hits:
+            fields = hit.get("fields", {}) or {}
+            proposal_id = fields.get("proposal_id")
+            if not proposal_id:
+                continue
+
+            proposal_doc = collection.find_one({"_id": proposal_id})
+            if not proposal_doc:
+                self.logger.warning(
+                    "Proposal not found in MongoDB for proposal_id=%s",
+                    proposal_id,
+                )
+                continue
+
+            proposals.append(
+                SnapshotProposal(
+                    proposal_id=str(proposal_doc.get("proposal_id") or proposal_id),
+                    space_id=str(proposal_doc.get("space_id", "")),
+                    space_name=proposal_doc.get("space_name"),
+                    title=str(proposal_doc.get("title", "")),
+                    body=str(proposal_doc.get("body", "")),
+                    discussion=proposal_doc.get("discussion"),
+                    author=proposal_doc.get("author"),
+                    state=proposal_doc.get("state"),
+                    start=proposal_doc.get("start"),
+                    end=proposal_doc.get("end"),
+                    snapshot=proposal_doc.get("snapshot"),
+                    choices=list(proposal_doc.get("choices", []) or []),
+                    scores=list(proposal_doc.get("scores", []) or []),
+                    scores_total=proposal_doc.get("scores_total"),
+                    scores_updated=proposal_doc.get("scores_updated"),
+                    created=proposal_doc.get("created"),
+                    link=proposal_doc.get("link"),
+                    source=str(proposal_doc.get("source", "snapshot")),
+                    cleaned_text=proposal_doc.get("cleaned_text"),
+                    keywords=list(proposal_doc.get("keywords", []) or []),
+                )
+            )
+
+        self.logger.info(
+            "Searched similar proposals by keywords hit_count=%s matched_count=%s keywords=%s space_id=%s",
+            len(search_hits),
+            len(proposals),
+            clean_keywords,
+            space_id,
+        )
+        return proposals
+
+    def search_similar_proposals_by_text(
+        self,
+        text: str,
+        space_id: str | None = None,
+        top_k: int = 2,
+    ) -> list[SnapshotProposal]:
+        clean_query = self.clean_text(text or "")
+        if not clean_query:
+            return []
+
+        text_vector = self.vector_service.embed_long_text(clean_query)
+        if not text_vector:
+            self.logger.warning(
+                "Text embedding returned empty vector for query=%s",
+                clean_query,
+            )
+            return []
+
+        expr = ""
+        if space_id:
+            expr = f"space_id == '{space_id}'"
+
+        search_hits = self.milvus_service.search_proposals_by_vector(
+            query_vector=text_vector,
+            top_k=top_k,
+            expr=expr or None,
+            output_fields=["proposal_id", "space_id"],
+        )
+        if not search_hits:
+            return []
+
+        collection = self.storage.mongo_client.collection(
+            self.storage.mongo_config.snapshot_proposals_collection
+        )
+        proposals: list[SnapshotProposal] = []
+
+        for hit in search_hits:
+            fields = hit.get("fields", {}) or {}
+            proposal_id = fields.get("proposal_id")
+            if not proposal_id:
+                continue
+
+            proposal_doc = collection.find_one({"_id": proposal_id})
+            if not proposal_doc:
+                self.logger.warning(
+                    "Proposal not found in MongoDB for proposal_id=%s",
+                    proposal_id,
+                )
+                continue
+
+            proposals.append(
+                SnapshotProposal(
+                    proposal_id=str(proposal_doc.get("proposal_id") or proposal_id),
+                    space_id=str(proposal_doc.get("space_id", "")),
+                    space_name=proposal_doc.get("space_name"),
+                    title=str(proposal_doc.get("title", "")),
+                    body=str(proposal_doc.get("body", "")),
+                    discussion=proposal_doc.get("discussion"),
+                    author=proposal_doc.get("author"),
+                    state=proposal_doc.get("state"),
+                    start=proposal_doc.get("start"),
+                    end=proposal_doc.get("end"),
+                    snapshot=proposal_doc.get("snapshot"),
+                    choices=list(proposal_doc.get("choices", []) or []),
+                    scores=list(proposal_doc.get("scores", []) or []),
+                    scores_total=proposal_doc.get("scores_total"),
+                    scores_updated=proposal_doc.get("scores_updated"),
+                    created=proposal_doc.get("created"),
+                    link=proposal_doc.get("link"),
+                    source=str(proposal_doc.get("source", "snapshot")),
+                    cleaned_text=proposal_doc.get("cleaned_text"),
+                    keywords=list(proposal_doc.get("keywords", []) or []),
+                )
+            )
+
+        self.logger.info(
+            "Searched similar proposals by text hit_count=%s matched_count=%s space_id=%s",
+            len(search_hits),
+            len(proposals),
+            space_id,
+        )
+        return proposals
