@@ -80,6 +80,8 @@ class SymbolConvertService:
             BTCUSDT -> BTC
             BNBUSDT -> BNB
         """
+        if symbol == "USDT":
+            return symbol
         if symbol and symbol.endswith("USDT"):
             return symbol[:-4]
         return symbol

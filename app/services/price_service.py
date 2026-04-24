@@ -61,7 +61,13 @@ class PriceService:
     def update_get_binance_token_price(self, symbol: str, price: float = None) -> dict[str, Any]:
         """Update binance current price for a token."""
         try:
-            base_symbol, binance_symbol = self._prepare_symbol_for_binance(symbol)
+            if(symbol == "USDT"):
+                price = 1.0
+                self.logger.info("USDT stablecoin detected, using fixed price symbol=%s price=%s", symbol, price)
+                base_symbol = symbol
+            else:
+                base_symbol, binance_symbol = self._prepare_symbol_for_binance(symbol)
+
             if price is None:
                 price_record = self.client.get_symbol_price(binance_symbol)
                 self.logger.info("Fetched token price from Binance symbol=%s price=%s", binance_symbol, price_record.get("price"))
@@ -69,6 +75,7 @@ class PriceService:
             else:
                 price = str(price)
                 self.logger.info("Using provided token price symbol=%s price=%s", base_symbol, price)
+            
             try:
                 result = self.storage.save_binance_token_price(base_symbol, price)
                 self.logger.info("Updated token current price id=%s symbol=%s", result, base_symbol)
@@ -90,21 +97,30 @@ class PriceService:
             )
         """
         try:
-            base_symbol, binance_symbol = self._prepare_symbol_for_binance(symbol)
+            if (symbol == "USDT"):
+                price = 1.0
+                base_symbol = symbol
+                self.logger.info("USDT stablecoin detected, using fixed price symbol=%s price=%s", symbol, price)
+            else:
+                base_symbol, binance_symbol = self._prepare_symbol_for_binance(symbol)
+
             if price is None:
+                self.logger.info("Fetching token price from Binance for symbol=%s", base_symbol)
                 price_record = self.client.get_symbol_price(binance_symbol)
                 self.logger.info("Fetched token price from Binance symbol=%s price=%s", binance_symbol, price_record.get("price"))
                 price = price_record.get("price")
             else:
+                self.logger.info("Using provided token price symbol=%s price=%s", symbol, price)
                 price = str(price)
-                self.logger.info("Using provided token price symbol=%s price=%s", base_symbol, price)
+
             try:
                 result = self.storage.save_binance_token_price(base_symbol, price)
                 self.logger.info("Updated token current price id=%s symbol=%s", result, base_symbol)
                 compact_price_record = {
-                    "symbol": binance_symbol,
+                    "symbol": base_symbol,
                     "price": price,
                 }
+                self.logger.info("symbol=%s price=%s saved to storage with id=%s", base_symbol, price, result)
                 return result, compact_price_record
             except Exception:
                 self.logger.exception("Failed to update token current price symbol=%s", base_symbol)
@@ -117,10 +133,26 @@ class PriceService:
         """Update Binance current prices for multiple tokens."""
         try:
             if prices is None:
-                binance_symbols = SymbolConvertService.to_binance_symbols(symbols)
-                price_records = self.client.get_multi_symbol_price_safe(binance_symbols)
+                base_symbols = [SymbolConvertService.map_to_binance_base_symbol(s) for s in symbols]
+                binance_symbols = [
+                    SymbolConvertService.to_binance_symbol(base_symbol)
+                    for base_symbol in base_symbols
+                    if base_symbol != "USDT"
+                ]
+                price_records = self.client.get_multi_symbol_price_safe(binance_symbols) if binance_symbols else []
+                price_map = {
+                    record.get("symbol"): record.get("price")
+                    for record in price_records
+                    if isinstance(record, dict)
+                }
                 self.logger.info("Fetched token prices from Binance symbols=%s", symbols)
-                prices = [record.get("price") for record in price_records]
+                prices = []
+                for base_symbol in base_symbols:
+                    if base_symbol == "USDT":
+                        prices.append("1")
+                    else:
+                        pair = SymbolConvertService.to_binance_symbol(base_symbol)
+                        prices.append(price_map.get(pair))
             else:
                 prices = [str(price) for price in prices]
                 self.logger.info("Using provided token prices symbols=%s", symbols)
@@ -151,18 +183,31 @@ class PriceService:
         """
         try:
             if prices is None:
-                binance_symbols = SymbolConvertService.to_binance_symbols(symbols)
-                price_records = self.client.get_multi_symbol_price_safe(binance_symbols)
-                compact_price_records = [
-                    {
-                        "symbol": record.get("symbol"),
-                        "price": record.get("price"),
-                    }
+                base_symbols = [SymbolConvertService.map_to_binance_base_symbol(s) for s in symbols]
+                binance_symbols = [
+                    SymbolConvertService.to_binance_symbol(base_symbol)
+                    for base_symbol in base_symbols
+                    if base_symbol != "USDT"
+                ]
+                price_records = self.client.get_multi_symbol_price_safe(binance_symbols) if binance_symbols else []
+                price_map = {
+                    record.get("symbol"): record.get("price")
                     for record in price_records
                     if isinstance(record, dict)
-                ]
+                }
+
+                compact_price_records = []
+                prices = []
+                for base_symbol in base_symbols:
+                    if base_symbol == "USDT":
+                        compact_price_records.append({"symbol": "USDT", "price": "1"})
+                        prices.append("1")
+                    else:
+                        pair = SymbolConvertService.to_binance_symbol(base_symbol)
+                        pair_price = price_map.get(pair)
+                        compact_price_records.append({"symbol": pair, "price": pair_price})
+                        prices.append(pair_price)
                 self.logger.info("Fetched token prices from Binance symbols=%s", symbols)
-                prices = [record.get("price") for record in price_records]
             else:
                 compact_price_records = [
                     {
@@ -184,7 +229,7 @@ class PriceService:
         except Exception:
             self.logger.exception("Failed to fetch token prices from Binance symbols=%s", symbols)
             raise
-    
+
 
 
     def update_get_ankr_token_price(self, symbol: str, price: float = None) -> dict[str, Any]:

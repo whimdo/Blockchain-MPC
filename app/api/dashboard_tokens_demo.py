@@ -407,6 +407,7 @@ def refresh_dashboard_token_card(req: TokenRefreshRequest) -> TokenCard:
                 content={"code": "TOKEN_NOT_FOUND", "message": "Token configuration not found."},
             )
 
+        logger.info("Refreshing dashboard token card symbol=%s", symbol)
         _, compact_price = _price_service.update_get_binance_token_price_tuple(symbol)
         price_map = _compact_price_map([compact_price])
         refreshed_at = _utc_now_iso()
