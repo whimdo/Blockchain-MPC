@@ -104,3 +104,20 @@ class TokenDetailResponse(BaseModel):
     
 
 # class TokenPrimaryChainInfo(BaseModel):#代币所在主链的情况
+
+class TokenAISummary(BaseModel):
+    symbol: str
+    title: str
+    summary: str
+    key_points: list[str] = Field(default_factory=list)
+    risk_notes: list[str] = Field(default_factory=list)
+    generated_by: str = "template"
+    generated_at: str
+
+class TokenAISummaryRequest(BaseModel):
+    symbol: str
+    chart_summary: TokenChartSummary | None = None
+
+class TokenAISummaryResponse(BaseModel):
+    symbol: str
+    summary: TokenAISummary | None = None

@@ -6,11 +6,15 @@ from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
 from app.models.token_detail_models import (
+    TokenAISummaryRequest,
+    TokenAISummaryResponse,
     TokenChartRequest,
+    TokenChartSummary,
     TokenChartResponse,
     TokenDetailRequest,
     TokenDetailResponse,
 )
+from app.services.ai_service import AIService
 from app.services.token_detail_service import TokenDetailService
 from app.utils.logging_config import get_logger
 
@@ -18,6 +22,7 @@ from app.utils.logging_config import get_logger
 logger = get_logger("app.api.token_detail")
 router = APIRouter(prefix="/api/dashboard/tokens", tags=["dashboard-token-detail"])
 service = TokenDetailService()
+ai_service = AIService()
 
 
 def _json_error(code: int, err_code: str, message: str) -> JSONResponse:
@@ -67,3 +72,32 @@ def get_token_chart(req: TokenChartRequest) -> Any:
     except Exception:
         logger.exception("Failed to load token chart symbol=%s", token_symbol)
         return _json_error(500, "TOKEN_CHART_ERROR", "Failed to load token chart.")
+
+
+@router.post(
+    "/ai-summary",
+    response_model=TokenAISummaryResponse,
+    summary="获取 Token AI 总结",
+    description="通过请求体传入 symbol 和可选的 chart_summary，返回结构化 TokenAISummaryResponse。",
+)
+def get_token_ai_summary(req: TokenAISummaryRequest) -> Any:
+    token_symbol = (req.symbol or "").strip().upper()
+    if not token_symbol:
+        return _json_error(400, "SYMBOL_REQUIRED", "Field 'symbol' is required.")
+
+    try:
+        chart_summary = req.chart_summary
+        if chart_summary is None:
+            chart_resp = service.build_chart(token_symbol, chart_range="7d", interval=None)
+            chart_summary = chart_resp.summary or TokenChartSummary()
+
+        summary = ai_service.generate_token_ai_summary(
+            symbol=token_symbol,
+            chart_summary=chart_summary,
+        )
+        return TokenAISummaryResponse(symbol=token_symbol, summary=summary)
+    except LookupError:
+        return _json_error(404, "TOKEN_NOT_FOUND", "Token configuration not found.")
+    except Exception:
+        logger.exception("Failed to generate token ai summary symbol=%s", token_symbol)
+        return _json_error(500, "TOKEN_AI_SUMMARY_ERROR", "Failed to generate token ai summary.")
