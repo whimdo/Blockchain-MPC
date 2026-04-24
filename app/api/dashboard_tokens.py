@@ -1,9 +1,9 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException, status
 from fastapi.responses import JSONResponse
 
-from app.models.dashboard_tokens import (
+from app.models.dashboard_tokens_models import (
     ErrorResponse,
     TokenCard,
     TokenOverviewResponse,

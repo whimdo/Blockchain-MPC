@@ -34,6 +34,39 @@ class BinanceClient:
             self.logger.exception("Failed to fetch single symbol price symbol=%s", symbol)
             raise
 
+    def get_24hr_ticker(self, symbol: str) -> dict[str, Any]:
+        """Fetch 24hr ticker stats for one trading pair."""
+        url = f"{self.base_url}/api/v3/ticker/24hr"
+        try:
+            symbol = symbol.upper()
+            self.logger.info("Fetching 24hr ticker symbol=%s", symbol)
+            response = requests.get(url, params={"symbol": symbol}, timeout=15)
+            response.raise_for_status()
+            data = response.json()
+            return data if isinstance(data, dict) else {}
+        except Exception:
+            self.logger.exception("Failed to fetch 24hr ticker symbol=%s", symbol)
+            raise
+
+    def get_klines(self, symbol: str, interval: str, limit: int = 500) -> list[list[Any]]:
+        """Fetch OHLCV klines for one trading pair."""
+        url = f"{self.base_url}/api/v3/klines"
+        try:
+            symbol = symbol.upper()
+            params = {
+                "symbol": symbol,
+                "interval": interval,
+                "limit": max(1, min(int(limit), 1000)),
+            }
+            self.logger.info("Fetching klines symbol=%s interval=%s limit=%s", symbol, interval, params["limit"])
+            response = requests.get(url, params=params, timeout=20)
+            response.raise_for_status()
+            data = response.json()
+            return data if isinstance(data, list) else []
+        except Exception:
+            self.logger.exception("Failed to fetch klines symbol=%s interval=%s limit=%s", symbol, interval, limit)
+            raise
+
     def get_multi_symbol_price(self, symbols: list[str]) -> list[dict[str, Any]]:
         """Fetch latest prices for multiple trading pairs."""
         url = f"{self.base_url}/api/v3/ticker/price"

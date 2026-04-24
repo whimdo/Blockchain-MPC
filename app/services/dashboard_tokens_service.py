@@ -7,7 +7,7 @@ from typing import Any
 import yaml
 from fastapi import HTTPException, status
 
-from app.models.dashboard_tokens import (
+from app.models.dashboard_tokens_models import (
     TokenCard,
     TokenGroup,
     TokenOverviewResponse,
@@ -302,4 +302,3 @@ class DashboardTokensService:
             price=price_map.get(symbol),
             updated_at=refreshed_at,
         )
-
