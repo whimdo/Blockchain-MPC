@@ -1,0 +1,52 @@
+from __future__ import annotations
+
+from pydantic import BaseModel, Field
+from app.models.snapshot_models import SnapshotProposal, SnapshotProposalVector, SnapshotDAO
+
+class ErrorResponse(BaseModel):
+    code: str
+    message: str
+
+class DAO(SnapshotDAO):
+    pass
+
+class DAOOverviewResponse(BaseModel):
+    page_updated_at: str
+    dao_count: int
+    daos: list[DAO] = Field(default_factory=list)
+
+class ProposalListItem(BaseModel):
+    proposal_id: str
+    space_id: str
+    author: str | None = None
+    title: str
+    state: str
+
+
+class DetailProposal(SnapshotProposal):
+    pass
+
+class ProposalListInDAOResponse(BaseModel):
+    page_updated_at: str
+    space_id: str
+    dao_name: str
+    page: int
+    page_size: int
+    proposals: list[ProposalListItem] = Field(default_factory=list)
+
+class SimilarProposals(BaseModel):
+    proposal_id: str
+    space_id: str
+    top_k: int
+    similar_proposals: list[ProposalListItem] = Field(default_factory=list)
+
+class DetailAndSimilarProposalsResponse(BaseModel):
+    proposal: DetailProposal
+    similar_proposals: SimilarProposals
+
+class DynamicSynchronousProposalRequest(BaseModel):
+    space_id: str
+    latest_k: int = Field(default=10, description="Number of latest proposals to consider for similarity search")
+
+class DynamicSynchronousProposalResponse(BaseModel):#动态访问snapshot API获取最新的一系列proposal
+    proposals: list[ProposalListItem] = Field(default_factory=list)

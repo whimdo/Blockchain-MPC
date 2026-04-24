@@ -1,3 +1,21 @@
 AVAX XRP DOGE
 
 python -m uvicorn app.main:app --reload 
+
+
+GET /api/dao/overview
+
+从 configs/dao_spaces_config.yaml 读取可展示 DAO（enabled && show_on_dao_dashboard）
+latest_synchronization_time、synchronized_proposals_count 从 Mongo 的 snapshot_proposals_collection 查询
+GET /api/dao/{space_id}/proposals?page=1&page_size=20
+
+按 space_id 从 Mongo 查询 proposals，返回 ProposalListInDAOResponse
+GET /api/dao/proposal/{proposal_id}?top_k=5
+
+查询 proposal 详情，并返回同 DAO 下的相似（这里用同 space 最近 proposals 作为 demo）
+POST /api/dao/proposals/dynamic-sync
+
+body: {"space_id":"aave.eth","latest_k":10}
+从 Snapshot 拉最新 k 条
+新 proposal（Mongo 不存在）会发送到 kafka_config.topic_dao_to_vector
+返回 DynamicSynchronousProposalResponse

@@ -1,0 +1,97 @@
+dao_spaces:
+  - space_id: aave.eth
+    name: Aave
+    display_name: Aave DAO
+    logo: /assets/dao/aave.png
+    description: Aave DAO governance space for proposals related to the Aave lending protocol, risk parameters, markets, and ecosystem development.
+    source: snapshot
+    enabled: true
+    show_on_dao_dashboard: true
+    sort_order: 1
+    tags:
+      - DeFi
+      - Lending
+      - Governance
+    snapshot_url: https://snapshot.box/#/s:aave.eth
+    website_url: https://aave.com
+    forum_url: https://governance.aave.com
+
+  - space_id: uniswap
+    name: Uniswap
+    display_name: Uniswap Governance
+    logo: /assets/dao/uniswap.png
+    description: Uniswap governance space for proposals related to protocol upgrades, treasury usage, liquidity incentives, and ecosystem governance.
+    source: snapshot
+    enabled: true
+    show_on_dao_dashboard: true
+    sort_order: 2
+    tags:
+      - DeFi
+      - DEX
+      - Governance
+    snapshot_url: https://snapshot.box/#/s:uniswap
+    website_url: https://uniswap.org
+    forum_url: https://gov.uniswap.org
+
+  - space_id: ens.eth
+    name: ENS
+    display_name: ENS DAO
+    logo: /assets/dao/ens.png
+    description: ENS DAO governance space for proposals related to Ethereum Name Service, public goods funding, protocol governance, and ecosystem development.
+    source: snapshot
+    enabled: true
+    show_on_dao_dashboard: true
+    sort_order: 3
+    tags:
+      - Identity
+      - Naming
+      - Governance
+    snapshot_url: https://snapshot.box/#/s:ens.eth
+    website_url: https://ens.domains
+    forum_url: https://discuss.ens.domains
+
+  - space_id: lido-snapshot.eth
+    name: Lido
+    display_name: Lido DAO
+    logo: /assets/dao/lido.png
+    description: Lido DAO governance space for proposals related to liquid staking, protocol parameters, node operators, and ecosystem development.
+    source: snapshot
+    enabled: false
+    show_on_dao_dashboard: false
+    sort_order: 4
+    tags:
+      - DeFi
+      - Liquid Staking
+      - Governance
+    snapshot_url: https://snapshot.box/#/s:lido-snapshot.eth
+    website_url: https://lido.fi
+    forum_url: https://research.lido.fi
+
+  - space_id: thegraph.eth
+    name: The Graph
+    display_name: The Graph Governance
+    logo: /assets/dao/thegraph.png
+    description: The Graph governance space for proposals related to indexing, subgraphs, protocol economics, and ecosystem governance.
+    source: snapshot
+    enabled: false
+    show_on_dao_dashboard: false
+    sort_order: 5
+    tags:
+      - Infrastructure
+      - Indexing
+      - Governance
+    snapshot_url: https://snapshot.box/#/s:thegraph.eth
+    website_url: https://thegraph.com
+    forum_url: https://forum.thegraph.com
+
+default_settings:
+  enabled_only: true
+  default_space_id: aave.eth
+  default_page_size: 20
+  supported_states:
+    - active
+    - closed
+    - pending
+  default_sort:
+    field: created
+    order: desc

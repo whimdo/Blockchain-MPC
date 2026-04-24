@@ -48,3 +48,17 @@ class SnapshotProposalVector:
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
+    
+@dataclass
+class SnapshotDAO:
+    name: str
+    space_id: str
+    logo: str | None = None
+    description: str | None = None
+    tags: list[str] = field(default_factory=list)
+    enabled: bool = True
+    latest_synchronization_time:str| None = None
+    synchronized_proposals_count: int | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
