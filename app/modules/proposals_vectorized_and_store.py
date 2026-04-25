@@ -55,6 +55,7 @@ class ProposalsVectorizedAndStoreModule:
         2) Normalized proposal (contains `proposal_id` + `space_id`)
         3) Wrapped payload under `proposal` or `payload` field
         """
+        source_space_id = str(payload.get("space_id") or "").strip()
         if "proposal" in payload and isinstance(payload["proposal"], Mapping):
             payload = dict(payload["proposal"])
         elif "payload" in payload and isinstance(payload["payload"], Mapping):
@@ -69,7 +70,10 @@ class ProposalsVectorizedAndStoreModule:
             return SnapshotProposal(**filtered)
 
         if "id" in payload and "space" in payload:
-            return self.snapshot_service.normalize_proposal(payload)
+            return self.snapshot_service.normalize_proposal(
+                payload,
+                source_space_id=source_space_id or None,
+            )
 
         raise ValueError("Payload cannot be converted to SnapshotProposal")
 
@@ -122,7 +126,7 @@ class ProposalsVectorizedAndStoreModule:
                 try:
                     self._process_one_message(message.value)
                     self.logger.info("Message processed successfully worker=%s partition=%s offset=%s", worker_index, getattr(message, "partition", "unknown"), getattr(message, "offset", "unknown"))
-                    consumer.commit_async()
+                    consumer.commit()
                 except Exception:
                     # Commit even on bad messages to avoid poison message blocking the pipeline.
                     self.logger.exception(
@@ -131,7 +135,7 @@ class ProposalsVectorizedAndStoreModule:
                         getattr(message, "partition", "unknown"),
                         getattr(message, "offset", "unknown"),
                     )
-                    consumer.commit_async()
+                    consumer.commit()
         finally:
             consumer.close()
 

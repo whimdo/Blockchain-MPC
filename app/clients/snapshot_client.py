@@ -180,6 +180,23 @@ class SnapshotClient:
         )
         return proposals
 
+    def get_space_by_id(self, space_id: str) -> dict[str, Any] | None:
+        """
+        Fetch Snapshot space metadata by id.
+        """
+        query = """
+        query Space($id: String!) {
+            space(id: $id) {
+                id
+                name
+                network
+            }
+        }
+        """
+        data = self._post_graphql(query, {"id": space_id})
+        space = data.get("space")
+        return space if isinstance(space, dict) else None
+
     def get_proposals_by_space_and_state(
         self,
         space_id: str,

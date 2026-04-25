@@ -13,6 +13,15 @@ from app.services.vector_service import VectorService
 
 
 class SnapshotService:
+    _SNAPSHOT_SPACE_ID_ALIASES: dict[str, str] = {
+        "aave.eth": "aavedao.eth",
+        "uniswap": "uniswapgovernance.eth",
+    }
+    _CONFIG_SPACE_ID_ALIASES: dict[str, str] = {
+        "aavedao.eth": "aave.eth",
+        "uniswapgovernance.eth": "uniswap",
+    }
+
     def __init__(self) -> None:
         self.logger = get_logger("app.services.snapshot_service")
         self.storage = SnapshotStorage()
@@ -21,6 +30,21 @@ class SnapshotService:
         self.vector_service = VectorService()
         self.milvus_service = MilvusService()
 
+    @classmethod
+    def to_valid_snapshot_space_id(cls, space_id: str) -> str:
+        """
+        Convert local/configured DAO space id to a Snapshot Hub-valid space id.
+        """
+        sid = (space_id or "").strip()
+        return cls._SNAPSHOT_SPACE_ID_ALIASES.get(sid, sid)
+
+    @classmethod
+    def to_config_space_id(cls, space_id: str) -> str:
+        """
+        Convert Snapshot Hub space id back to the local/configured DAO space id.
+        """
+        sid = (space_id or "").strip()
+        return cls._CONFIG_SPACE_ID_ALIASES.get(sid, sid)
 
     @staticmethod
     def clean_text(text: str) -> str:
@@ -153,7 +177,11 @@ class SnapshotService:
 
         return False
 
-    def normalize_proposal(self, raw: dict[str, Any]) -> SnapshotProposal:
+    def normalize_proposal(
+        self,
+        raw: dict[str, Any],
+        source_space_id: str | None = None,
+    ) -> SnapshotProposal:
         title = self.clean_text(raw.get("title", ""))
         body = self.clean_text(raw.get("body", ""))
         discussion = self.clean_text(raw.get("discussion", "") or "")
@@ -173,10 +201,17 @@ class SnapshotService:
             keywords = self.ai_service.extract_keywords_list(cleaned_text, top_k=5)
 
         space = raw.get("space", {}) or {}
+        raw_space_id = str(space.get("id", "")).strip()
+        stored_space_id = (
+            (source_space_id or "").strip()
+            or str(raw.get("source_space_id") or "").strip()
+            or str(raw.get("original_space_id") or "").strip()
+            or self.to_config_space_id(raw_space_id)
+        )
 
         return SnapshotProposal(
             proposal_id=raw.get("id", ""),
-            space_id=space.get("id", ""),
+            space_id=stored_space_id,
             space_name=space.get("name"),
             title=title,
             body=body,
@@ -202,17 +237,22 @@ class SnapshotService:
         first: int = 20,
         skip: int = 0,
     ) -> list[SnapshotProposal]:
+        query_space_id = self.to_valid_snapshot_space_id(space_id)
         raw_proposals = self.client.get_space_proposals(
-            space_id=space_id,
+            space_id=query_space_id,
             first=first,
             skip=skip,
         )
 
-        proposals = [self.normalize_proposal(item) for item in raw_proposals]
+        proposals = [
+            self.normalize_proposal(item, source_space_id=space_id)
+            for item in raw_proposals
+        ]
 
         self.logger.info(
-            "Normalized Snapshot proposals space=%s count=%s",
+            "Normalized Snapshot proposals space=%s query_space=%s count=%s",
             space_id,
+            query_space_id,
             len(proposals),
         )
         return proposals
@@ -435,3 +475,285 @@ class SnapshotService:
             space_id,
         )
         return proposals
+
+    def search_similar_proposals_by_proposal_id_by_vector(
+        self,
+        proposal_id: str,
+        space_id: str | None = None,
+        top_k: int = 2,
+    ) -> list[SnapshotProposal]:
+        pid = (proposal_id or "").strip()
+        if not pid:
+            return []
+        if top_k <= 0:
+            return []
+
+        expr_parts = [f"proposal_id == '{pid}'"]
+        if space_id:
+            expr_parts.append(f"space_id == '{space_id}'")
+
+        source_rows = self.milvus_service.query(
+            expr=" and ".join(expr_parts),
+            output_fields=["proposal_id", "space_id", "vector"],
+            limit=1,
+        )
+        if not source_rows:
+            self.logger.warning("Source proposal vector not found in Milvus proposal_id=%s", pid)
+            return []
+
+        source_vector = source_rows[0].get("vector")
+        if not source_vector:
+            self.logger.warning("Source proposal vector is empty proposal_id=%s", pid)
+            return []
+
+        search_expr = f"space_id == '{space_id}'" if space_id else None
+        # Fetch a larger candidate pool first, then remove self and de-duplicate.
+        # Some Milvus/index settings may return very few neighbors for small `top_k`.
+        candidate_top_k = min(max(top_k * 5, top_k + 10), 200)
+        search_hits = self.milvus_service.search_proposals_by_vector(
+            query_vector=source_vector,
+            top_k=candidate_top_k,
+            expr=search_expr,
+            output_fields=["proposal_id", "space_id"],
+        )
+        if not search_hits:
+            return []
+
+        similar_ids: list[str] = []
+        for hit in search_hits:
+            fields = hit.get("fields", {}) or {}
+            hit_id = str(fields.get("proposal_id") or "").strip()
+            if not hit_id or hit_id == pid:
+                continue
+            if hit_id in similar_ids:
+                continue
+            similar_ids.append(hit_id)
+            if len(similar_ids) >= top_k:
+                break
+
+        if not similar_ids:
+            return []
+
+        collection = self.storage.mongo_client.collection(
+            self.storage.mongo_config.snapshot_proposals_collection
+        )
+        docs = list(collection.find({"_id": {"$in": similar_ids}}))
+        doc_map = {str(doc.get("_id")): doc for doc in docs}
+
+        proposals: list[SnapshotProposal] = []
+        for sid in similar_ids:
+            proposal_doc = doc_map.get(sid)
+            if not proposal_doc:
+                self.logger.warning("Proposal not found in MongoDB for proposal_id=%s", sid)
+                continue
+            proposals.append(
+                SnapshotProposal(
+                    proposal_id=str(proposal_doc.get("proposal_id") or sid),
+                    space_id=str(proposal_doc.get("space_id", "")),
+                    space_name=proposal_doc.get("space_name"),
+                    title=str(proposal_doc.get("title", "")),
+                    body=str(proposal_doc.get("body", "")),
+                    discussion=proposal_doc.get("discussion"),
+                    author=proposal_doc.get("author"),
+                    state=proposal_doc.get("state"),
+                    start=proposal_doc.get("start"),
+                    end=proposal_doc.get("end"),
+                    snapshot=proposal_doc.get("snapshot"),
+                    choices=list(proposal_doc.get("choices", []) or []),
+                    scores=list(proposal_doc.get("scores", []) or []),
+                    scores_total=proposal_doc.get("scores_total"),
+                    scores_updated=proposal_doc.get("scores_updated"),
+                    created=proposal_doc.get("created"),
+                    link=proposal_doc.get("link"),
+                    source=str(proposal_doc.get("source", "snapshot")),
+                    cleaned_text=proposal_doc.get("cleaned_text"),
+                    keywords=list(proposal_doc.get("keywords", []) or []),
+                )
+            )
+
+        self.logger.info(
+            "Searched similar proposals by proposal_id(vector) source=%s hit_count=%s matched_count=%s space_id=%s",
+            pid,
+            len(search_hits),
+            len(proposals),
+            space_id,
+        )
+        return proposals
+
+    def search_similar_proposals_by_proposal_id_by_keyword_vector(
+        self,
+        proposal_id: str,
+        space_id: str | None = None,
+        top_k: int = 2,
+    ) -> list[SnapshotProposal]:
+        pid = (proposal_id or "").strip()
+        if not pid:
+            return []
+        if top_k <= 0:
+            return []
+
+        expr_parts = [f"proposal_id == '{pid}'"]
+        if space_id:
+            expr_parts.append(f"space_id == '{space_id}'")
+
+        source_rows = self.milvus_service.query(
+            expr=" and ".join(expr_parts),
+            output_fields=["proposal_id", "space_id", "keyword_vector"],
+            limit=1,
+        )
+        if not source_rows:
+            self.logger.warning("Source proposal keyword vector not found in Milvus proposal_id=%s", pid)
+            return []
+
+        source_keyword_vector = source_rows[0].get("keyword_vector")
+        if not source_keyword_vector:
+            self.logger.warning("Source proposal keyword vector is empty proposal_id=%s", pid)
+            return []
+
+        search_expr = f"space_id == '{space_id}'" if space_id else None
+        # Fetch a larger candidate pool first, then remove self and de-duplicate.
+        # Some Milvus/index settings may return very few neighbors for small `top_k`.
+        candidate_top_k = min(max(top_k * 5, top_k + 10), 200)
+        search_hits = self.milvus_service.search_proposals_by_keyword_vector(
+            query_vector=source_keyword_vector,
+            top_k=candidate_top_k,
+            expr=search_expr,
+            output_fields=["proposal_id", "space_id"],
+        )
+        if not search_hits:
+            return []
+
+        similar_ids: list[str] = []
+        for hit in search_hits:
+            fields = hit.get("fields", {}) or {}
+            hit_id = str(fields.get("proposal_id") or "").strip()
+            if not hit_id or hit_id == pid:
+                continue
+            if hit_id in similar_ids:
+                continue
+            similar_ids.append(hit_id)
+            if len(similar_ids) >= top_k:
+                break
+
+        if not similar_ids:
+            return []
+
+        collection = self.storage.mongo_client.collection(
+            self.storage.mongo_config.snapshot_proposals_collection
+        )
+        docs = list(collection.find({"_id": {"$in": similar_ids}}))
+        doc_map = {str(doc.get("_id")): doc for doc in docs}
+
+        proposals: list[SnapshotProposal] = []
+        for sid in similar_ids:
+            proposal_doc = doc_map.get(sid)
+            if not proposal_doc:
+                self.logger.warning("Proposal not found in MongoDB for proposal_id=%s", sid)
+                continue
+            proposals.append(
+                SnapshotProposal(
+                    proposal_id=str(proposal_doc.get("proposal_id") or sid),
+                    space_id=str(proposal_doc.get("space_id", "")),
+                    space_name=proposal_doc.get("space_name"),
+                    title=str(proposal_doc.get("title", "")),
+                    body=str(proposal_doc.get("body", "")),
+                    discussion=proposal_doc.get("discussion"),
+                    author=proposal_doc.get("author"),
+                    state=proposal_doc.get("state"),
+                    start=proposal_doc.get("start"),
+                    end=proposal_doc.get("end"),
+                    snapshot=proposal_doc.get("snapshot"),
+                    choices=list(proposal_doc.get("choices", []) or []),
+                    scores=list(proposal_doc.get("scores", []) or []),
+                    scores_total=proposal_doc.get("scores_total"),
+                    scores_updated=proposal_doc.get("scores_updated"),
+                    created=proposal_doc.get("created"),
+                    link=proposal_doc.get("link"),
+                    source=str(proposal_doc.get("source", "snapshot")),
+                    cleaned_text=proposal_doc.get("cleaned_text"),
+                    keywords=list(proposal_doc.get("keywords", []) or []),
+                )
+            )
+
+        self.logger.info(
+            "Searched similar proposals by proposal_id(keyword_vector) source=%s hit_count=%s matched_count=%s space_id=%s",
+            pid,
+            len(search_hits),
+            len(proposals),
+            space_id,
+        )
+        return proposals
+
+    def search_similar_proposals_by_proposal_id(
+        self,
+        proposal_id: str,
+        space_id: str | None = None,
+        top_k: int = 2,
+        by_vector: bool = True,
+    ) -> list[SnapshotProposal]:
+        '''
+        Search for similar proposals based on a given proposal ID.
+        This method first retrieves the proposal vector for the specified proposal ID,
+        then performs a similarity search in Milvus using that vector.
+        '''
+        if by_vector:
+            return self.search_similar_proposals_by_proposal_id_by_vector(
+                proposal_id=proposal_id,
+                space_id=space_id,
+                top_k=top_k,
+            )
+        return self.search_similar_proposals_by_proposal_id_by_keyword_vector(
+            proposal_id=proposal_id,
+            space_id=space_id,
+            top_k=top_k,
+        )
+    
+    def search_similar_proposals_by_proposal(
+        self,
+        proposal: SnapshotProposal,
+        top_k: int = 2,
+        by_vector: bool = True,
+    ) -> list[SnapshotProposal]:
+        '''
+        Search for similar proposals based on a given SnapshotProposal object.
+        This method generates the proposal vector for the provided proposal,
+        then performs a similarity search in Milvus using that vector.
+        '''
+        if not proposal or not proposal.proposal_id or not proposal.space_id:
+            self.logger.warning("Invalid proposal input for similarity search.")
+            return []
+
+        if by_vector:
+            return self.search_similar_proposals_by_proposal_id_by_vector(
+                proposal_id=proposal.proposal_id,
+                space_id=proposal.space_id,
+                top_k=top_k,
+            )
+        
+        return self.search_similar_proposals_by_proposal_id_by_keyword_vector(
+            proposal_id=proposal.proposal_id,
+            space_id=proposal.space_id,
+            top_k=top_k,
+    )
+
+    def search__similar_proposals_by_proposal_by_vector(
+        self,
+        proposal: SnapshotProposal,
+        top_k: int = 2,
+    ) -> list[SnapshotProposal]:
+        return self.search_similar_proposals_by_proposal_id_by_vector(
+            proposal_id=proposal.proposal_id,
+            space_id=proposal.space_id,
+            top_k=top_k,
+        )
+    
+    def search_similar_proposals_by_proposal_by_keyword_vector(
+        self,
+        proposal: SnapshotProposal,
+        top_k: int = 2,
+    ) -> list[SnapshotProposal]:
+        return self.search_similar_proposals_by_proposal_id_by_keyword_vector(
+            proposal_id=proposal.proposal_id,
+            space_id=proposal.space_id,
+            top_k=top_k,
+        )

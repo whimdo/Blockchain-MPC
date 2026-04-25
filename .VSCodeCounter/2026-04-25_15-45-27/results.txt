@@ -1,0 +1,122 @@
+Date : 2026-04-25 15:45:27
+Directory : e:\-bishe\Blockchain-MPC
+Total : 74 files,  8816 codes, 712 comments, 2002 blanks, all 11530 lines
+
+Languages
++------------------+------------+------------+------------+------------+------------+
+| language         | files      | code       | comment    | blank      | total      |
++------------------+------------+------------+------------+------------+------------+
+| Python           |         59 |      5,697 |        712 |      1,110 |      7,519 |
+| Markdown         |          5 |      2,026 |          0 |        829 |      2,855 |
+| CSV              |          1 |        325 |          0 |          1 |        326 |
+| YAML             |          2 |        295 |          0 |         21 |        316 |
+| JSON             |          1 |        229 |          0 |          0 |        229 |
+| PowerShell       |          2 |         94 |          0 |         21 |        115 |
+| pip requirements |          1 |         79 |          0 |          1 |         80 |
+| Batch            |          3 |         71 |          0 |         19 |         90 |
++------------------+------------+------------+------------+------------+------------+
+
+Directories
++-----------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                        | files      | code       | comment    | blank      | total      |
++-----------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                           |         74 |      8,816 |        712 |      2,002 |     11,530 |
+| . (Files)                                                                   |         11 |      2,270 |          0 |        870 |      3,140 |
+| MCP                                                                         |          3 |        503 |         23 |         54 |        580 |
+| MCP\client                                                                  |          1 |        162 |         19 |         46 |        227 |
+| MCP\server                                                                  |          2 |        341 |          4 |          8 |        353 |
+| app                                                                         |         48 |      4,972 |        681 |        928 |      6,581 |
+| app (Files)                                                                 |          1 |          8 |          0 |          4 |         12 |
+| app\api                                                                     |          3 |        254 |          0 |         42 |        296 |
+| app\clients                                                                 |          9 |        558 |        357 |        119 |      1,034 |
+| app\models                                                                  |          7 |        378 |         30 |        108 |        516 |
+| app\modules                                                                 |          2 |        294 |         20 |         58 |        372 |
+| app\scripts                                                                 |          9 |        359 |         33 |        115 |        507 |
+| app\services                                                                |         13 |      2,775 |        186 |        423 |      3,384 |
+| app\storage                                                                 |          2 |        315 |         53 |         44 |        412 |
+| app\utils                                                                   |          2 |         31 |          2 |         15 |         48 |
+| configs                                                                     |          8 |        446 |          5 |         71 |        522 |
+| docs                                                                        |          1 |        229 |          0 |          0 |        229 |
+| scripts                                                                     |          3 |        396 |          3 |         79 |        478 |
++-----------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-----------------------------------------------------------------------------+------------------+------------+------------+------------+------------+
+| filename                                                                    | language         | code       | comment    | blank      | total      |
++-----------------------------------------------------------------------------+------------------+------------+------------+------------+------------+
+| e:\-bishe\Blockchain-MPC\1.bat                                              | Batch            |          7 |          0 |          4 |         11 |
+| e:\-bishe\Blockchain-MPC\DAO治理页面技术设计与接口文档.md                                | Markdown         |        634 |          0 |        214 |        848 |
+| e:\-bishe\Blockchain-MPC\Dashboard_主流币种链总览区_模块清单版.md                        | Markdown         |        283 |          0 |        136 |        419 |
+| e:\-bishe\Blockchain-MPC\MCP\client\client.py                               | Python           |        162 |         19 |         46 |        227 |
+| e:\-bishe\Blockchain-MPC\MCP\server\output.csv                              | CSV              |        325 |          0 |          1 |        326 |
+| e:\-bishe\Blockchain-MPC\MCP\server\server.py                               | Python           |         16 |          4 |          7 |         27 |
+| e:\-bishe\Blockchain-MPC\README.md                                          | Markdown         |         18 |          0 |          8 |         26 |
+| e:\-bishe\Blockchain-MPC\Token详情页设计文档与接口设计文档.md                             | Markdown         |        840 |          0 |        359 |      1,199 |
+| e:\-bishe\Blockchain-MPC\app\api\dao_proposal.py                            | Python           |         91 |          0 |         13 |        104 |
+| e:\-bishe\Blockchain-MPC\app\api\dashboard_tokens.py                        | Python           |         77 |          0 |         11 |         88 |
+| e:\-bishe\Blockchain-MPC\app\api\token_detail.py                            | Python           |         86 |          0 |         18 |        104 |
+| e:\-bishe\Blockchain-MPC\app\clients\ai_client.py                           | Python           |         58 |          3 |         12 |         73 |
+| e:\-bishe\Blockchain-MPC\app\clients\ankr_api_client.py                     | Python           |         50 |          4 |         11 |         65 |
+| e:\-bishe\Blockchain-MPC\app\clients\binance_client.py                      | Python           |        128 |         18 |         25 |        171 |
+| e:\-bishe\Blockchain-MPC\app\clients\kafka_client.py                        | Python           |         58 |          2 |         16 |         76 |
+| e:\-bishe\Blockchain-MPC\app\clients\milvus_client.py                       | Python           |         25 |          2 |         12 |         39 |
+| e:\-bishe\Blockchain-MPC\app\clients\mongo_client.py                        | Python           |         22 |          2 |          9 |         33 |
+| e:\-bishe\Blockchain-MPC\app\clients\multichain_client.py                   | Python           |        130 |          9 |         20 |        159 |
+| e:\-bishe\Blockchain-MPC\app\clients\snapshot_client.py                     | Python           |         77 |        312 |          6 |        395 |
+| e:\-bishe\Blockchain-MPC\app\clients\token_detail_market_client.py          | Python           |         10 |          5 |          8 |         23 |
+| e:\-bishe\Blockchain-MPC\app\main.py                                        | Python           |          8 |          0 |          4 |         12 |
+| e:\-bishe\Blockchain-MPC\app\models\chain_models.py                         | Python           |         36 |          0 |          7 |         43 |
+| e:\-bishe\Blockchain-MPC\app\models\dao_proposal.py                         | Python           |         43 |          0 |         12 |         55 |
+| e:\-bishe\Blockchain-MPC\app\models\dashboard_tokens_models.py              | Python           |         37 |          0 |         17 |         54 |
+| e:\-bishe\Blockchain-MPC\app\models\snapshot_models.py                      | Python           |         47 |          3 |         14 |         64 |
+| e:\-bishe\Blockchain-MPC\app\models\symbol_mapper.py                        | Python           |         86 |         18 |         18 |        122 |
+| e:\-bishe\Blockchain-MPC\app\models\token_detail_models.py                  | Python           |         95 |          1 |         28 |        124 |
+| e:\-bishe\Blockchain-MPC\app\models\token_models.py                         | Python           |         34 |          8 |         12 |         54 |
+| e:\-bishe\Blockchain-MPC\app\modules\proposals_get_and_push.py              | Python           |        153 |          6 |         29 |        188 |
+| e:\-bishe\Blockchain-MPC\app\modules\proposals_vectorized_and_store.py      | Python           |        141 |         14 |         29 |        184 |
+| e:\-bishe\Blockchain-MPC\app\scripts\fill_missing_price.py                  | Python           |         34 |          0 |         14 |         48 |
+| e:\-bishe\Blockchain-MPC\app\scripts\test_assets.py                         | Python           |         18 |          2 |          8 |         28 |
+| e:\-bishe\Blockchain-MPC\app\scripts\test_get_one_dao.py                    | Python           |         90 |         22 |         24 |        136 |
+| e:\-bishe\Blockchain-MPC\app\scripts\test_keyword_ai.py                     | Python           |         32 |          3 |         10 |         45 |
+| e:\-bishe\Blockchain-MPC\app\scripts\test_mongo_storage.py                  | Python           |         50 |          3 |         16 |         69 |
+| e:\-bishe\Blockchain-MPC\app\scripts\test_prices.py                         | Python           |         15 |          1 |          8 |         24 |
+| e:\-bishe\Blockchain-MPC\app\scripts\test_rpc.py                            | Python           |         14 |          1 |          8 |         23 |
+| e:\-bishe\Blockchain-MPC\app\scripts\test_snapshot_similarity_search.py     | Python           |         88 |          0 |         19 |        107 |
+| e:\-bishe\Blockchain-MPC\app\scripts\test_wallet_overview.py                | Python           |         18 |          1 |          8 |         27 |
+| e:\-bishe\Blockchain-MPC\app\services\ai_service.py                         | Python           |        184 |         14 |         29 |        227 |
+| e:\-bishe\Blockchain-MPC\app\services\asset_service.py                      | Python           |         28 |          3 |          4 |         35 |
+| e:\-bishe\Blockchain-MPC\app\services\chain_rpc_service.py                  | Python           |         42 |          6 |          8 |         56 |
+| e:\-bishe\Blockchain-MPC\app\services\dao_proposal_service.py               | Python           |        269 |          0 |         45 |        314 |
+| e:\-bishe\Blockchain-MPC\app\services\dashboard_tokens_service.py           | Python           |        267 |          1 |         37 |        305 |
+| e:\-bishe\Blockchain-MPC\app\services\market_service.py                     | Python           |        107 |          8 |         18 |        133 |
+| e:\-bishe\Blockchain-MPC\app\services\milvus_service.py                     | Python           |        183 |         26 |         29 |        238 |
+| e:\-bishe\Blockchain-MPC\app\services\price_service.py                      | Python           |        288 |         30 |         32 |        350 |
+| e:\-bishe\Blockchain-MPC\app\services\snapshot_service.py                   | Python           |        636 |         34 |         90 |        760 |
+| e:\-bishe\Blockchain-MPC\app\services\symbol_mapper_service.py              | Python           |         38 |         45 |         14 |         97 |
+| e:\-bishe\Blockchain-MPC\app\services\token_detail_demo_service.py          | Python           |        321 |          1 |         42 |        364 |
+| e:\-bishe\Blockchain-MPC\app\services\token_detail_service.py               | Python           |        272 |          2 |         45 |        319 |
+| e:\-bishe\Blockchain-MPC\app\services\vector_service.py                     | Python           |        140 |         16 |         30 |        186 |
+| e:\-bishe\Blockchain-MPC\app\storage\market_storage.py                      | Python           |        256 |         38 |         30 |        324 |
+| e:\-bishe\Blockchain-MPC\app\storage\snapshot_storage.py                    | Python           |         59 |         15 |         14 |         88 |
+| e:\-bishe\Blockchain-MPC\app\utils\__init__.py                              | Python           |          0 |          1 |          2 |          3 |
+| e:\-bishe\Blockchain-MPC\app\utils\logging_config.py                        | Python           |         31 |          1 |         13 |         45 |
+| e:\-bishe\Blockchain-MPC\configs\ai_config.py                               | Python           |         17 |          1 |          9 |         27 |
+| e:\-bishe\Blockchain-MPC\configs\dao_spaces_config.yaml                     | YAML             |         92 |          0 |          6 |         98 |
+| e:\-bishe\Blockchain-MPC\configs\dashboard_tokens_config.yaml               | YAML             |        203 |          0 |         15 |        218 |
+| e:\-bishe\Blockchain-MPC\configs\kafka_config.py                            | Python           |         25 |          1 |          8 |         34 |
+| e:\-bishe\Blockchain-MPC\configs\milvus_config.py                           | Python           |         21 |          1 |          8 |         30 |
+| e:\-bishe\Blockchain-MPC\configs\mongo_config.py                            | Python           |         37 |          1 |          8 |         46 |
+| e:\-bishe\Blockchain-MPC\configs\provider_config.py                         | Python           |         23 |          0 |          9 |         32 |
+| e:\-bishe\Blockchain-MPC\configs\snapshot_config.py                         | Python           |         28 |          1 |          8 |         37 |
+| e:\-bishe\Blockchain-MPC\docs\api_dashboard_tokens_overview_response_1.json | JSON             |        229 |          0 |          0 |        229 |
+| e:\-bishe\Blockchain-MPC\requirements.txt                                   | pip requirements |         79 |          0 |          1 |         80 |
+| e:\-bishe\Blockchain-MPC\scripts\check_kafka_topic_empty.py                 | Python           |        120 |          3 |         26 |        149 |
+| e:\-bishe\Blockchain-MPC\scripts\init_milvus_collection.py                  | Python           |        110 |          0 |         25 |        135 |
+| e:\-bishe\Blockchain-MPC\scripts\rebuild_kafka_topic.py                     | Python           |        166 |          0 |         28 |        194 |
+| e:\-bishe\Blockchain-MPC\start.bat                                          | Batch            |         39 |          0 |         10 |         49 |
+| e:\-bishe\Blockchain-MPC\start.ps1                                          | PowerShell       |         49 |          0 |         11 |         60 |
+| e:\-bishe\Blockchain-MPC\stop.bat                                           | Batch            |         25 |          0 |          5 |         30 |
+| e:\-bishe\Blockchain-MPC\stop.ps1                                           | PowerShell       |         45 |          0 |         10 |         55 |
+| e:\-bishe\Blockchain-MPC\产品设计方案_区块链智能交互平台.md                                | Markdown         |        251 |          0 |        112 |        363 |
+| Total                                                                       |                  |      8,816 |        712 |      2,002 |     11,530 |
++-----------------------------------------------------------------------------+------------------+------------+------------+------------+------------+

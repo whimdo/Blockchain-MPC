@@ -70,7 +70,7 @@ def get_proposals_in_dao(
 )
 def get_proposal_detail_and_similar(
     proposal_id: str,
-    top_k: int = Query(default=5, ge=1, le=20),
+    top_k: int = Query(default=2, ge=1, le=20),
 ) -> DetailAndSimilarProposalsResponse | JSONResponse:
     try:
         return _service.get_proposal_detail_and_similar(proposal_id=proposal_id, top_k=top_k)

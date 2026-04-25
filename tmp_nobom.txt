@@ -3,11 +3,11 @@ AVAX XRP DOGE
 python -m uvicorn app.main:app --reload 
 
 
-GET /api/dao/overview
+GET /api/dao/overview 通过
 
 从 configs/dao_spaces_config.yaml 读取可展示 DAO（enabled && show_on_dao_dashboard）
 latest_synchronization_time、synchronized_proposals_count 从 Mongo 的 snapshot_proposals_collection 查询
-GET /api/dao/{space_id}/proposals?page=1&page_size=20
+GET /api/dao/{space_id}/proposals?page=1&page_size=20  通过
 
 按 space_id 从 Mongo 查询 proposals，返回 ProposalListInDAOResponse
 GET /api/dao/proposal/{proposal_id}?top_k=5

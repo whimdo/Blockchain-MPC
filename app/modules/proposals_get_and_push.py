@@ -9,6 +9,7 @@ from typing import Any
 
 from app.clients.kafka_client import KafkaClient
 from app.clients.snapshot_client import SnapshotClient
+from app.services.snapshot_service import SnapshotService
 from app.utils.logging_config import get_logger
 from configs.kafka_config import load_kafka_config
 from configs.snapshot_config import load_snapshot_config    
@@ -35,6 +36,7 @@ class ProposalsGetAndPushModule:
 
         self._seen_ids: set[str] = set()
         self._seen_queue: deque[str] = deque()
+        self._validate_spaces()
 
     @staticmethod
     def _utc_now_iso() -> str:
@@ -59,16 +61,47 @@ class ProposalsGetAndPushModule:
             self._seen_ids.discard(old)
 
     def _build_message(self, proposal: dict[str, Any], space_id: str) -> dict[str, Any]:
+        proposal_payload = dict(proposal)
+        proposal_payload["source_space_id"] = space_id
         return {
             "source": "snapshot",
             "space_id": space_id,
             "fetched_at": self._utc_now_iso(),
-            "proposal": proposal,
+            "proposal": proposal_payload,
         }
 
+    def _validate_spaces(self) -> None:
+        for space_id in self.space_ids:
+            query_space_id = SnapshotService.to_valid_snapshot_space_id(space_id)
+            try:
+                space = self.snapshot_client.get_space_by_id(query_space_id)
+            except Exception:
+                self.logger.exception(
+                    "Snapshot space validation failed space=%s query_space=%s",
+                    space_id,
+                    query_space_id,
+                )
+                continue
+
+            if not space:
+                self.logger.warning(
+                    "Snapshot space not found space=%s query_space=%s. Check SNAPSHOT_SPACE_IDS.",
+                    space_id,
+                    query_space_id,
+                )
+                continue
+
+            self.logger.info(
+                "Snapshot space validated space=%s query_space=%s name=%s",
+                space_id,
+                space.get("id"),
+                space.get("name"),
+            )
+
     def _fetch_space_proposals(self, space_id: str) -> list[dict[str, Any]]:
+        query_space_id = SnapshotService.to_valid_snapshot_space_id(space_id)
         return self.snapshot_client.get_proposals_by_space(
-            space_id=space_id,
+            space_id=query_space_id,
             first=self.fetch_first,
             skip=0,
             detail_level=self.detail_level,

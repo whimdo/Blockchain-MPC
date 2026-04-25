@@ -3,7 +3,7 @@ dao_spaces:
     name: Aave
     display_name: Aave DAO
     logo: /assets/dao/aave.png
-    description: Aave DAO governance space for proposals related to the Aave lending protocol, risk parameters, markets, and ecosystem development.
+    description: Aave DAO 治理空间，用于与 Aave 借贷协议、风险参数、市场和生态系统开发相关的提案。
     source: snapshot
     enabled: true
     show_on_dao_dashboard: true
@@ -20,7 +20,7 @@ dao_spaces:
     name: Uniswap
     display_name: Uniswap Governance
     logo: /assets/dao/uniswap.png
-    description: Uniswap governance space for proposals related to protocol upgrades, treasury usage, liquidity incentives, and ecosystem governance.
+    description: Uniswap 治理空间，用于与协议升级、资金使用、流动性激励和生态系统治理相关的提案。
     source: snapshot
     enabled: true
     show_on_dao_dashboard: true
@@ -37,7 +37,7 @@ dao_spaces:
     name: ENS
     display_name: ENS DAO
     logo: /assets/dao/ens.png
-    description: ENS DAO governance space for proposals related to Ethereum Name Service, public goods funding, protocol governance, and ecosystem development.
+    description: ENS DAO 治理空间，用于与以太坊名称服务、公共产品资助、协议治理和生态系统开发相关的提案。
     source: snapshot
     enabled: true
     show_on_dao_dashboard: true

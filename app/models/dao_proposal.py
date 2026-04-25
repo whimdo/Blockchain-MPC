@@ -21,6 +21,7 @@ class ProposalListItem(BaseModel):
     author: str | None = None
     title: str
     state: str
+    keywords: list[str] = Field(default_factory=list)
 
 
 class DetailProposal(SnapshotProposal):
@@ -49,4 +50,6 @@ class DynamicSynchronousProposalRequest(BaseModel):
     latest_k: int = Field(default=10, description="Number of latest proposals to consider for similarity search")
 
 class DynamicSynchronousProposalResponse(BaseModel):#动态访问snapshot API获取最新的一系列proposal
+    fetched_count: int
+    new_count: int
     proposals: list[ProposalListItem] = Field(default_factory=list)

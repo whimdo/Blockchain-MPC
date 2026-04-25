@@ -20,6 +20,7 @@ from app.models.dao_proposal import (
     ProposalListItem,
     SimilarProposals,
 )
+from app.services.snapshot_service import SnapshotService
 from app.utils.logging_config import get_logger
 from configs.kafka_config import load_kafka_config
 from configs.mongo_config import load_mongo_config
@@ -41,6 +42,7 @@ class DaoProposalService:
         self._kafka_cfg = load_kafka_config()
         self._snapshot_client = SnapshotClient()
         self._kafka_client = KafkaClient()
+        self._snapshot_service = SnapshotService()
         self._dao_spaces_config = Path(__file__).resolve().parents[2] / "configs" / "dao_spaces_config.yaml"
 
     @staticmethod
@@ -111,6 +113,18 @@ class DaoProposalService:
             author=doc.get("author"),
             title=str(doc.get("title", "")),
             state=str(doc.get("state", "")),
+            keywords=list(doc.get("keywords", []) or []),
+        )
+
+    @staticmethod
+    def _snapshot_proposal_to_list_item(proposal: Any) -> ProposalListItem:
+        return ProposalListItem(
+            proposal_id=str(getattr(proposal, "proposal_id", "") or ""),
+            space_id=str(getattr(proposal, "space_id", "") or ""),
+            author=getattr(proposal, "author", None),
+            title=str(getattr(proposal, "title", "") or ""),
+            state=str(getattr(proposal, "state", "") or ""),
+            keywords=list(getattr(proposal, "keywords", []) or []),
         )
 
     @staticmethod
@@ -209,12 +223,14 @@ class DaoProposalService:
             raise DaoProposalServiceError(404, "PROPOSAL_NOT_FOUND", "Proposal not found.")
 
         detail = self._proposal_doc_to_detail(doc)
-        similar_cursor = collection.find(
-            {"proposal_id": {"$ne": detail.proposal_id}},
-            sort=[("created", -1), ("updated_at", -1)],
-            limit=top_k,
+
+        similar_proposals = self._snapshot_service.search_similar_proposals_by_proposal_id(
+            proposal_id=detail.proposal_id,
+            space_id=None,
+            top_k=top_k,
+            by_vector=True,
         )
-        similar_items = [self._proposal_doc_to_list_item(item) for item in similar_cursor]
+        similar_items = [self._snapshot_proposal_to_list_item(item) for item in similar_proposals]
 
         return DetailAndSimilarProposalsResponse(
             proposal=detail,
@@ -233,9 +249,10 @@ class DaoProposalService:
 
         self._find_visible_dao(sid)
         latest_k = max(1, int(latest_k or 10))
+        query_space_id = SnapshotService.to_valid_snapshot_space_id(sid)
 
         latest_proposals = self._snapshot_client.get_proposals_by_space(
-            space_id=sid,
+            space_id=query_space_id,
             first=latest_k,
             skip=0,
             detail_level="full",
@@ -263,11 +280,13 @@ class DaoProposalService:
                 if exists is not None:
                     continue
 
+                proposal_payload = dict(proposal)
+                proposal_payload["source_space_id"] = sid
                 message = {
                     "source": "snapshot",
                     "space_id": sid,
                     "fetched_at": self._utc_now_iso(),
-                    "proposal": proposal,
+                    "proposal": proposal_payload,
                 }
                 producer.send(topic, value=json.dumps(message, ensure_ascii=False).encode("utf-8"))
 
@@ -278,6 +297,7 @@ class DaoProposalService:
                         author=proposal.get("author"),
                         title=str(proposal.get("title", "")),
                         state=str(proposal.get("state", "")),
+                        keywords=list(proposal.get("keywords", []) or []),
                     )
                 )
 
@@ -286,4 +306,8 @@ class DaoProposalService:
         finally:
             producer.close()
 
-        return DynamicSynchronousProposalResponse(proposals=pushed_items)
+        return DynamicSynchronousProposalResponse(
+            fetched_count=len(latest_proposals),
+            new_count=len(pushed_items),
+            proposals=pushed_items,
+        )
