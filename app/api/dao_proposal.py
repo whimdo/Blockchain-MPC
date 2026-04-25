@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Depends, Query
 from fastapi.responses import JSONResponse
 
 from app.models.dao_proposal import (
@@ -9,6 +9,7 @@ from app.models.dao_proposal import (
     DynamicSynchronousProposalRequest,
     DynamicSynchronousProposalResponse,
     ErrorResponse,
+    ProposalListInDAORequest,
     ProposalListInDAOResponse,
 )
 from app.services.dao_proposal_service import DaoProposalService, DaoProposalServiceError
@@ -47,11 +48,15 @@ def get_dao_overview() -> DAOOverviewResponse | JSONResponse:
 )
 def get_proposals_in_dao(
     space_id: str,
-    page: int = Query(default=1, ge=1),
-    page_size: int = Query(default=20, ge=1, le=100),
+    req: ProposalListInDAORequest = Depends(),
 ) -> ProposalListInDAOResponse | JSONResponse:
     try:
-        return _service.get_proposals_in_dao(space_id=space_id, page=page, page_size=page_size)
+        return _service.get_proposals_in_dao(
+            space_id=space_id,
+            page=req.page,
+            page_size=req.page_size,
+            state=req.state,
+        )
     except DaoProposalServiceError as exc:
         return JSONResponse(status_code=exc.status_code, content={"code": exc.code, "message": exc.message})
     except Exception:

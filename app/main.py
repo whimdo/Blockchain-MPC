@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 
 from app.api.ai_chat import router as ai_chat_router
 from app.api.auth import router as auth_router
@@ -8,6 +9,7 @@ from app.api.token_detail import router as token_detail_router
 
 
 app = FastAPI(title="Blockchain MPC Dashboard Demo", version="0.1.0")
+app.mount("/assets", StaticFiles(directory="app/assets"), name="assets")
 app.include_router(auth_router)
 app.include_router(dashboard_tokens_router)
 app.include_router(token_detail_router)

@@ -27,12 +27,18 @@ class ProposalListItem(BaseModel):
 class DetailProposal(SnapshotProposal):
     pass
 
+class ProposalListInDAORequest(BaseModel):
+    page: int = Field(default=1, ge=1)
+    page_size: int = Field(default=12, ge=1, le=100)
+    state: str | None = Field(default=None, description="Filter by proposal state, e.g. 'active', 'closed'")
+
 class ProposalListInDAOResponse(BaseModel):
     page_updated_at: str
     space_id: str
     dao_name: str
     page: int
     page_size: int
+    total: int = 0
     proposals: list[ProposalListItem] = Field(default_factory=list)
 
 class SimilarProposals(BaseModel):

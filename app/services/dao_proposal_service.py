@@ -187,16 +187,28 @@ class DaoProposalService:
 
         return DAOOverviewResponse(page_updated_at=self._utc_now_iso(), dao_count=len(daos), daos=daos)
 
-    def get_proposals_in_dao(self, space_id: str, page: int, page_size: int) -> ProposalListInDAOResponse:
+    def get_proposals_in_dao(
+        self,
+        space_id: str,
+        page: int,
+        page_size: int,
+        state: str | None = None,
+    ) -> ProposalListInDAOResponse:
         sid = (space_id or "").strip()
         if not sid:
             raise DaoProposalServiceError(400, "SPACE_ID_REQUIRED", "Path parameter 'space_id' is required.")
 
         dao_cfg = self._find_visible_dao(sid)
         collection = self._mongo.collection(self._proposal_collection_name())
+        query: dict[str, Any] = {"space_id": sid}
+        state_filter = (state or "").strip()
+        if state_filter:
+            query["state"] = state_filter
+
+        total = collection.count_documents(query)
         skip = (page - 1) * page_size
         cursor = collection.find(
-            {"space_id": sid},
+            query,
             sort=[("created", -1), ("updated_at", -1)],
             skip=skip,
             limit=page_size,
@@ -209,6 +221,7 @@ class DaoProposalService:
             dao_name=str(dao_cfg.get("display_name") or dao_cfg.get("name") or sid),
             page=page,
             page_size=page_size,
+            total=total,
             proposals=proposals,
         )
 
