@@ -23,4 +23,3 @@ def load_ai_config() -> AIConfig:
         model=os.getenv("AI_MODEL", "gpt-4o-mini"),
         timeout_seconds=int(os.getenv("AI_TIMEOUT_SECONDS", "30")),
     )
-

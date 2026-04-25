@@ -16,6 +16,8 @@ class MongoConfig:
     asset_overviews_collection: str
     token_prices_collection: str 
     snapshot_proposals_collection: str
+    ai_chat_sessions_collection: str
+    users_collection: str
     server_selection_timeout_ms: int
 
 
@@ -40,6 +42,14 @@ def load_mongo_config() -> MongoConfig:
         snapshot_proposals_collection=os.getenv(
             "MONGODB_COLLECTION_SNAPSHOT_PROPOSALS",
             "snapshot_proposals",
+        ),
+        ai_chat_sessions_collection=os.getenv(
+            "MONGODB_COLLECTION_AI_CHAT_SESSIONS",
+            "ai_chat_sessions",
+        ),
+        users_collection=os.getenv(
+            "MONGODB_COLLECTION_USERS",
+            "users",
         ),
         server_selection_timeout_ms=int(os.getenv("MONGODB_SERVER_SELECTION_TIMEOUT_MS", "5000")),
     )
