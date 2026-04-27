@@ -10,6 +10,7 @@ import type {
   MeResponse,
   ProposalDetailResponse,
   ProposalListResponse,
+  ProposalStatusUpdateResponse,
   TokenAISummaryResponse,
   TokenChartResponse,
   TokenChartSummary,
@@ -24,7 +25,7 @@ export const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 30000,
+  timeout: 120000,
 })
 
 api.interceptors.request.use((config) => {
@@ -89,6 +90,8 @@ export const daoApi = {
     }).then((res) => res.data),
   dynamicSync: (payload: { space_id: string; latest_k: number }) =>
     api.post<DynamicSyncResponse>('/dao/proposals/dynamic-sync', payload).then((res) => res.data),
+  updateProposalStatus: (payload: { proposal_id: string; space_id: string }) =>
+    api.post<ProposalStatusUpdateResponse>('/dao/proposal/status-update', payload).then((res) => res.data),
 }
 
 export const aiApi = {

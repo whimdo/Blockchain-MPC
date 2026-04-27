@@ -153,9 +153,11 @@ export interface ProposalListResponse {
 
 export interface ProposalDetail extends ProposalListItem {
   body?: string
+  end?: number | null
   choices?: string[]
   scores?: number[]
-  scores_total?: number
+  scores_total?: number | null
+  scores_updated?: number | null
   created?: number
   link?: string
 }
@@ -175,7 +177,19 @@ export interface ProposalDetailResponse {
 export interface DynamicSyncResponse {
   fetched_count: number
   new_count: number
+  recent_updated_count: number
   proposals: ProposalListItem[]
+}
+
+export interface ProposalStatusUpdateResponse {
+  proposal_id: string
+  space_id: string
+  state?: string | null
+  end?: number | null
+  choices: string[]
+  scores: number[]
+  scores_total?: number | null
+  scores_updated?: number | null
 }
 
 export type ChatMode = 'auto' | 'token' | 'dao' | 'proposal'
@@ -194,9 +208,7 @@ export interface ChatResponse {
   mode: ChatMode
   status: string
   used_tools: unknown[]
-  context: Record<string, unknown>
   result_cards: unknown[]
-  suggested_questions: string[]
   error_message?: string | null
 }
 
@@ -223,6 +235,4 @@ export interface ChatSessionDocument extends ChatSessionSummary {
   client?: string | null
   messages?: ChatMessage[]
   tool_calls?: unknown[]
-  context?: Record<string, unknown>
-  suggested_questions?: string[]
 }

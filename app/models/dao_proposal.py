@@ -41,6 +41,22 @@ class ProposalListInDAOResponse(BaseModel):
     total: int = 0
     proposals: list[ProposalListItem] = Field(default_factory=list)
 
+
+class ProposalStatusUpdateRequest(BaseModel):
+    proposal_id: str
+    space_id: str
+
+
+class ProposalStatusUpdateResponse(BaseModel):
+    proposal_id: str
+    space_id: str
+    state: str | None = None
+    end: int | None = None
+    choices: list[str] = Field(default_factory=list)
+    scores: list[float] = Field(default_factory=list)
+    scores_total: float | None = None
+    scores_updated: int | None = None
+
 class SimilarProposals(BaseModel):
     proposal_id: str
     space_id: str
@@ -58,4 +74,5 @@ class DynamicSynchronousProposalRequest(BaseModel):
 class DynamicSynchronousProposalResponse(BaseModel):#动态访问snapshot API获取最新的一系列proposal
     fetched_count: int
     new_count: int
+    recent_updated_count: int = 0
     proposals: list[ProposalListItem] = Field(default_factory=list)

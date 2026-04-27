@@ -316,7 +316,6 @@ async function sendChat(question = chatInput.value) {
       client: 'web',
     })
     chatSessionId.value = res.session_id
-    chatSuggestions.value = res.suggested_questions ?? []
     chatMessages.value.push({ role: 'assistant', content: res.answer || res.error_message || '暂未生成回答。' })
   } catch (error) {
     chatMessages.value.push({ role: 'assistant', content: `请求失败：${getApiError(error)}` })

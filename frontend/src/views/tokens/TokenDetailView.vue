@@ -244,7 +244,7 @@ watch(() => route.params.symbol, loadDetail)
           <ul><li v-for="risk in summary.risk_notes" :key="risk">{{ risk }}</li></ul>
           <small>{{ summary.generated_by }} · {{ formatDate(summary.generated_at) }}</small>
         </div>
-        <div v-else class="empty-state">点击生成摘要，调用 Token AI Summary 接口。</div>
+        <div v-else class="empty-state">点击生成摘要，查看该代币的智能分析。</div>
       </article>
     </section>
   </main>

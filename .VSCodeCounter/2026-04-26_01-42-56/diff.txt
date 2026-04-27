@@ -1,0 +1,111 @@
+Date : 2026-04-26 01:42:56
+Directory : e:\-bishe\Blockchain-MPC
+Total : 52 files,  8074 codes, 20 comments, 173 blanks, all 8267 lines
+
+Languages
++--------------------+------------+------------+------------+------------+------------+
+| language           | files      | code       | comment    | blank      | total      |
++--------------------+------------+------------+------------+------------+------------+
+| JSON               |          6 |      5,727 |         11 |         11 |      5,749 |
+| vue                |         19 |      1,701 |          1 |        177 |      1,879 |
+| TypeScript         |         10 |        469 |          5 |         77 |        551 |
+| PostCSS            |          2 |        461 |          2 |         35 |        498 |
+| Python             |          5 |         53 |          1 |         11 |         65 |
+| XML                |          3 |         35 |          0 |          3 |         38 |
+| HTML               |          1 |         13 |          0 |          1 |         14 |
+| JSON with Comments |          1 |         11 |          0 |          1 |         12 |
+| Markdown           |          5 |       -396 |          0 |       -143 |       -539 |
++--------------------+------------+------------+------------+------------+------------+
+
+Directories
++-----------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                              | files      | code       | comment    | blank      | total      |
++-----------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                 |         52 |      8,074 |         20 |        173 |      8,267 |
+| . (Files)                                                                         |          4 |       -427 |          0 |       -161 |       -588 |
+| app                                                                               |          4 |         24 |          0 |          3 |         27 |
+| app (Files)                                                                       |          1 |          2 |          0 |          0 |          2 |
+| app\api                                                                           |          1 |          5 |          0 |          0 |          5 |
+| app\models                                                                        |          1 |          5 |          0 |          2 |          7 |
+| app\services                                                                      |          1 |         12 |          0 |          1 |         13 |
+| configs                                                                           |          1 |         29 |          1 |          8 |         38 |
+| frontend                                                                          |         43 |      8,448 |         19 |        323 |      8,790 |
+| frontend (Files)                                                                  |         12 |      5,822 |         16 |         42 |      5,880 |
+| frontend\public                                                                   |          1 |         17 |          0 |          1 |         18 |
+| frontend\src                                                                      |         30 |      2,609 |          3 |        280 |      2,892 |
+| frontend\src (Files)                                                              |          3 |         49 |          0 |         14 |         63 |
+| frontend\src\api                                                                  |          1 |        101 |          0 |         12 |        113 |
+| frontend\src\assets                                                               |          4 |        479 |          2 |         37 |        518 |
+| frontend\src\components                                                           |          8 |        240 |          1 |         37 |        278 |
+| frontend\src\components (Files)                                                   |          3 |        194 |          0 |         32 |        226 |
+| frontend\src\components\icons                                                     |          5 |         46 |          1 |          5 |         52 |
+| frontend\src\layouts                                                              |          1 |         35 |          0 |          7 |         42 |
+| frontend\src\router                                                               |          1 |         38 |          0 |          4 |         42 |
+| frontend\src\stores                                                               |          2 |         52 |          0 |         12 |         64 |
+| frontend\src\types                                                                |          1 |        201 |          0 |         28 |        229 |
+| frontend\src\views                                                                |          9 |      1,414 |          0 |        129 |      1,543 |
+| frontend\src\views (Files)                                                        |          2 |        588 |          0 |         43 |        631 |
+| frontend\src\views\assistant                                                      |          1 |        142 |          0 |         15 |        157 |
+| frontend\src\views\auth                                                           |          1 |         75 |          0 |          8 |         83 |
+| frontend\src\views\governance                                                     |          3 |        306 |          0 |         33 |        339 |
+| frontend\src\views\tokens                                                         |          2 |        303 |          0 |         30 |        333 |
++-----------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-----------------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+
+| filename                                                                          | language           | code       | comment    | blank      | total      |
++-----------------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+
+| e:\-bishe\Blockchain-MPC\AIChat_API接口说明.md                                        | Markdown           |       -231 |          0 |        -71 |       -302 |
+| e:\-bishe\Blockchain-MPC\API接口总说明.md                                              | Markdown           |        630 |          0 |        180 |        810 |
+| e:\-bishe\Blockchain-MPC\Auth_API接口说明.md                                          | Markdown           |       -192 |          0 |        -56 |       -248 |
+| e:\-bishe\Blockchain-MPC\DAO治理页面技术设计与接口文档.md                                      | Markdown           |       -634 |          0 |       -214 |       -848 |
+| e:\-bishe\Blockchain-MPC\app\api\dao_proposal.py                                  | Python             |          5 |          0 |          0 |          5 |
+| e:\-bishe\Blockchain-MPC\app\main.py                                              | Python             |          2 |          0 |          0 |          2 |
+| e:\-bishe\Blockchain-MPC\app\models\dao_proposal.py                               | Python             |          5 |          0 |          2 |          7 |
+| e:\-bishe\Blockchain-MPC\app\services\dao_proposal_service.py                     | Python             |         12 |          0 |          1 |         13 |
+| e:\-bishe\Blockchain-MPC\configs\gitee_config.py                                  | Python             |         29 |          1 |          8 |         38 |
+| e:\-bishe\Blockchain-MPC\frontend\.oxlintrc.json                                  | JSON               |         10 |          0 |          1 |         11 |
+| e:\-bishe\Blockchain-MPC\frontend\.prettierrc.json                                | JSON               |          6 |          0 |          1 |          7 |
+| e:\-bishe\Blockchain-MPC\frontend\README.md                                       | Markdown           |         31 |          0 |         18 |         49 |
+| e:\-bishe\Blockchain-MPC\frontend\env.d.ts                                        | TypeScript         |          0 |          1 |          1 |          2 |
+| e:\-bishe\Blockchain-MPC\frontend\eslint.config.ts                                | TypeScript         |         16 |          4 |          7 |         27 |
+| e:\-bishe\Blockchain-MPC\frontend\index.html                                      | HTML               |         13 |          0 |          1 |         14 |
+| e:\-bishe\Blockchain-MPC\frontend\package-lock.json                               | JSON               |      5,634 |          0 |          1 |      5,635 |
+| e:\-bishe\Blockchain-MPC\frontend\package.json                                    | JSON               |         48 |          0 |          1 |         49 |
+| e:\-bishe\Blockchain-MPC\frontend\public\chainpilot.svg                           | XML                |         17 |          0 |          1 |         18 |
+| e:\-bishe\Blockchain-MPC\frontend\src\App.vue                                     | vue                |         12 |          0 |          4 |         16 |
+| e:\-bishe\Blockchain-MPC\frontend\src\api\client.ts                               | TypeScript         |        101 |          0 |         12 |        113 |
+| e:\-bishe\Blockchain-MPC\frontend\src\assets\base.css                             | PostCSS            |         71 |          2 |         14 |         87 |
+| e:\-bishe\Blockchain-MPC\frontend\src\assets\chainpilot-logo.svg                  | XML                |         17 |          0 |          1 |         18 |
+| e:\-bishe\Blockchain-MPC\frontend\src\assets\logo.svg                             | XML                |          1 |          0 |          1 |          2 |
+| e:\-bishe\Blockchain-MPC\frontend\src\assets\main.css                             | PostCSS            |        390 |          0 |         21 |        411 |
+| e:\-bishe\Blockchain-MPC\frontend\src\components\HelloWorld.vue                   | vue                |         36 |          0 |          6 |         42 |
+| e:\-bishe\Blockchain-MPC\frontend\src\components\TheWelcome.vue                   | vue                |         82 |          0 |         14 |         96 |
+| e:\-bishe\Blockchain-MPC\frontend\src\components\WelcomeItem.vue                  | vue                |         76 |          0 |         12 |         88 |
+| e:\-bishe\Blockchain-MPC\frontend\src\components\icons\IconCommunity.vue          | vue                |          7 |          0 |          1 |          8 |
+| e:\-bishe\Blockchain-MPC\frontend\src\components\icons\IconDocumentation.vue      | vue                |          7 |          0 |          1 |          8 |
+| e:\-bishe\Blockchain-MPC\frontend\src\components\icons\IconEcosystem.vue          | vue                |          7 |          0 |          1 |          8 |
+| e:\-bishe\Blockchain-MPC\frontend\src\components\icons\IconSupport.vue            | vue                |          7 |          0 |          1 |          8 |
+| e:\-bishe\Blockchain-MPC\frontend\src\components\icons\IconTooling.vue            | vue                |         18 |          1 |          1 |         20 |
+| e:\-bishe\Blockchain-MPC\frontend\src\layouts\MainLayout.vue                      | vue                |         35 |          0 |          7 |         42 |
+| e:\-bishe\Blockchain-MPC\frontend\src\main.ts                                     | TypeScript         |          9 |          0 |          6 |         15 |
+| e:\-bishe\Blockchain-MPC\frontend\src\router\index.ts                             | TypeScript         |         38 |          0 |          4 |         42 |
+| e:\-bishe\Blockchain-MPC\frontend\src\stores\auth.ts                              | TypeScript         |         42 |          0 |          9 |         51 |
+| e:\-bishe\Blockchain-MPC\frontend\src\stores\counter.ts                           | TypeScript         |         10 |          0 |          3 |         13 |
+| e:\-bishe\Blockchain-MPC\frontend\src\types\api.ts                                | TypeScript         |        201 |          0 |         28 |        229 |
+| e:\-bishe\Blockchain-MPC\frontend\src\utils.ts                                    | TypeScript         |         28 |          0 |          4 |         32 |
+| e:\-bishe\Blockchain-MPC\frontend\src\views\AboutView.vue                         | vue                |         14 |          0 |          2 |         16 |
+| e:\-bishe\Blockchain-MPC\frontend\src\views\HomeView.vue                          | vue                |        574 |          0 |         41 |        615 |
+| e:\-bishe\Blockchain-MPC\frontend\src\views\assistant\AiAssistantView.vue         | vue                |        142 |          0 |         15 |        157 |
+| e:\-bishe\Blockchain-MPC\frontend\src\views\auth\LoginView.vue                    | vue                |         75 |          0 |          8 |         83 |
+| e:\-bishe\Blockchain-MPC\frontend\src\views\governance\GovernanceOverviewView.vue | vue                |         61 |          0 |          6 |         67 |
+| e:\-bishe\Blockchain-MPC\frontend\src\views\governance\ProposalDetailView.vue     | vue                |         76 |          0 |          9 |         85 |
+| e:\-bishe\Blockchain-MPC\frontend\src\views\governance\ProposalListView.vue       | vue                |        169 |          0 |         18 |        187 |
+| e:\-bishe\Blockchain-MPC\frontend\src\views\tokens\TokenDetailView.vue            | vue                |        231 |          0 |         21 |        252 |
+| e:\-bishe\Blockchain-MPC\frontend\src\views\tokens\TokenOverviewView.vue          | vue                |         72 |          0 |          9 |         81 |
+| e:\-bishe\Blockchain-MPC\frontend\tsconfig.app.json                               | JSON               |         12 |          4 |          3 |         19 |
+| e:\-bishe\Blockchain-MPC\frontend\tsconfig.json                                   | JSON with Comments |         11 |          0 |          1 |         12 |
+| e:\-bishe\Blockchain-MPC\frontend\tsconfig.node.json                              | JSON               |         17 |          7 |          4 |         28 |
+| e:\-bishe\Blockchain-MPC\frontend\vite.config.ts                                  | TypeScript         |         24 |          0 |          3 |         27 |
+| Total                                                                             |                    |      8,074 |         20 |        173 |      8,267 |
++-----------------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+

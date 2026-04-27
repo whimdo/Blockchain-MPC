@@ -1,4 +1,4 @@
-dashboard_tokens:
+﻿dashboard_tokens:
   - symbol: BTC
     name: Bitcoin
     display_name: Bitcoin
@@ -127,6 +127,70 @@ dashboard_tokens:
       - Native
       - Smart Contract
 
+  - symbol: TON
+    name: Toncoin
+    display_name: Toncoin
+    primary_chain: ton
+    category: native
+    price_symbol: TONUSDT
+    logo: /assets/tokens/ton.svg
+    description: The native asset of The Open Network ecosystem, connected with high-attention consumer crypto scenarios.
+    enabled: true
+    show_on_dashboard: true
+    sort_order: 9
+    tags:
+      - Layer1
+      - Native
+      - High Attention
+
+  - symbol: NEAR
+    name: NEAR Protocol
+    display_name: NEAR Protocol
+    primary_chain: near
+    category: native
+    price_symbol: NEARUSDT
+    logo: /assets/tokens/near.svg
+    description: The native asset of NEAR Protocol, a scalable smart contract platform with strong AI and Web3 narratives.
+    enabled: true
+    show_on_dashboard: true
+    sort_order: 10
+    tags:
+      - Layer1
+      - Native
+      - Smart Contract
+
+  - symbol: ARB
+    name: Arbitrum
+    display_name: Arbitrum
+    primary_chain: arbitrum
+    category: layer2
+    price_symbol: ARBUSDT
+    logo: /assets/tokens/arb.svg
+    description: A leading Ethereum Layer2 ecosystem token focused on scaling Ethereum applications.
+    enabled: true
+    show_on_dashboard: true
+    sort_order: 11
+    tags:
+      - Layer2
+      - Ethereum Scaling
+      - Governance
+
+  - symbol: OP
+    name: Optimism
+    display_name: Optimism
+    primary_chain: optimism
+    category: layer2
+    price_symbol: OPUSDT
+    logo: /assets/tokens/op.svg
+    description: The governance token of the Optimism ecosystem, a major Ethereum Layer2 network.
+    enabled: true
+    show_on_dashboard: true
+    sort_order: 12
+    tags:
+      - Layer2
+      - Ethereum Scaling
+      - Governance
+
   - symbol: XRP
     name: XRP
     display_name: XRP
@@ -137,7 +201,7 @@ dashboard_tokens:
     description: A major crypto asset focused on payments and value transfer.
     enabled: true
     show_on_dashboard: true
-    sort_order: 9
+    sort_order: 13
     tags:
       - Payments
       - Mainstream
@@ -153,7 +217,7 @@ dashboard_tokens:
     description: The native asset of the TRON ecosystem, commonly used for on-chain transfers and applications.
     enabled: true
     show_on_dashboard: true
-    sort_order: 10
+    sort_order: 14
     tags:
       - Layer1
       - Native
@@ -169,7 +233,7 @@ dashboard_tokens:
     description: A highly recognized crypto asset with strong market attention and community popularity.
     enabled: true
     show_on_dashboard: true
-    sort_order: 11
+    sort_order: 15
     tags:
       - Meme
       - Mainstream
@@ -185,11 +249,75 @@ dashboard_tokens:
     description: A leading oracle network token widely used in smart contract data services.
     enabled: true
     show_on_dashboard: true
-    sort_order: 12
+    sort_order: 16
     tags:
       - Oracle
       - DeFi
       - Infrastructure
+
+  - symbol: UNI
+    name: Uniswap
+    display_name: Uniswap
+    primary_chain: ethereum
+    category: defi
+    price_symbol: UNIUSDT
+    logo: /assets/tokens/uni.svg
+    description: The governance token of Uniswap, one of the most influential decentralized exchange protocols.
+    enabled: true
+    show_on_dashboard: true
+    sort_order: 17
+    tags:
+      - DeFi
+      - Governance
+      - DEX
+
+  - symbol: AAVE
+    name: Aave
+    display_name: Aave
+    primary_chain: ethereum
+    category: defi
+    price_symbol: AAVEUSDT
+    logo: /assets/tokens/aave.svg
+    description: The governance token of Aave, a major decentralized lending protocol.
+    enabled: true
+    show_on_dashboard: true
+    sort_order: 18
+    tags:
+      - DeFi
+      - Governance
+      - Lending
+
+  - symbol: FIL
+    name: Filecoin
+    display_name: Filecoin
+    primary_chain: filecoin
+    category: storage
+    price_symbol: FILUSDT
+    logo: /assets/tokens/fil.svg
+    description: The native asset of Filecoin, a decentralized storage network.
+    enabled: true
+    show_on_dashboard: true
+    sort_order: 19
+    tags:
+      - Storage
+      - Infrastructure
+      - Web3
+
+  - symbol: SHIB
+    name: Shiba Inu
+    display_name: Shiba Inu
+    primary_chain: ethereum
+    category: meme
+    price_symbol: SHIBUSDT
+    logo: /assets/tokens/shib.svg
+    description: A high-attention meme asset with strong community-driven market activity.
+    enabled: true
+    show_on_dashboard: true
+    sort_order: 20
+    tags:
+      - Meme
+      - High Attention
+      - Community
 
 dashboard_groups:
   - group_name: 核心资产
@@ -207,6 +335,10 @@ dashboard_groups:
       - SOL
       - ADA
       - AVAX
+      - TON
+      - NEAR
+      - ARB
+      - OP
 
   - group_name: 高热度资产
     group_key: high_attention_assets
@@ -215,3 +347,7 @@ dashboard_groups:
       - TRX
       - DOGE
       - LINK
+      - UNI
+      - AAVE
+      - FIL
+      - SHIB

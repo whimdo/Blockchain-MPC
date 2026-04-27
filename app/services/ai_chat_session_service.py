@@ -8,7 +8,6 @@ from pymongo import ASCENDING, DESCENDING, ReturnDocument
 
 from app.clients.mongo_client import MongoDBClient
 from app.models.ai_assistant_models import (
-    AIChatContext,
     AIChatMessage,
     AIChatMode,
     AIChatSessionDocument,
@@ -16,7 +15,6 @@ from app.models.ai_assistant_models import (
     AIChatSessionMetadata,
     AIChatSessionStatus,
     AIChatSessionSummary,
-    AISuggestedQuestion,
     AIToolCallRecord,
 )
 from app.utils.logging_config import get_logger
@@ -197,41 +195,6 @@ class AIChatSessionService:
         if result.matched_count == 0:
             raise AIChatSessionServiceError(404, "SESSION_NOT_FOUND", "AI chat session not found.")
         return [AIToolCallRecord(**item) for item in tool_docs]
-
-    def update_context(self, session_id: str, context: AIChatContext) -> AIChatContext:
-        sid = (session_id or "").strip()
-        if not sid:
-            raise AIChatSessionServiceError(400, "SESSION_ID_REQUIRED", "Field 'session_id' is required.")
-
-        result = self.collection.update_one(
-            self._session_filter(sid),
-            {"$set": {"context": context.model_dump(mode="python"), "updated_at": self.utc_now()}},
-        )
-        if result.matched_count == 0:
-            raise AIChatSessionServiceError(404, "SESSION_NOT_FOUND", "AI chat session not found.")
-        return context
-
-    def update_suggested_questions(
-        self,
-        session_id: str,
-        suggested_questions: list[AISuggestedQuestion],
-    ) -> list[AISuggestedQuestion]:
-        sid = (session_id or "").strip()
-        if not sid:
-            raise AIChatSessionServiceError(400, "SESSION_ID_REQUIRED", "Field 'session_id' is required.")
-
-        result = self.collection.update_one(
-            self._session_filter(sid),
-            {
-                "$set": {
-                    "suggested_questions": [item.model_dump(mode="python") for item in suggested_questions],
-                    "updated_at": self.utc_now(),
-                }
-            },
-        )
-        if result.matched_count == 0:
-            raise AIChatSessionServiceError(404, "SESSION_NOT_FOUND", "AI chat session not found.")
-        return suggested_questions
 
     def update_status(self, session_id: str, status: AIChatSessionStatus) -> AIChatSessionDocument:
         sid = (session_id or "").strip()

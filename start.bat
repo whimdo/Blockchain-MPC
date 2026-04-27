@@ -40,9 +40,22 @@ echo Starting proposals vectorize-and-store module in background...
 start "PROPOSALS_VECTORIZED_STORE_BLOCKCHAIN_MPC" cmd /c "cd /d ""%PROJECT_DIR%"" && %PYTHON_CMD% -m app.modules.proposals_vectorized_and_store ^> ""%LOG_DIR%\proposals_vectorized_and_store.log"" 2^>^&1"
 echo Module start command submitted.
 
-echo Starting proposals get-and-push module in background...
-start "PROPOSALS_GET_AND_PUSH_BLOCKCHAIN_MPC" cmd /c "cd /d ""%PROJECT_DIR%"" && %PYTHON_CMD% -m app.modules.proposals_get_and_push ^> ""%LOG_DIR%\proposals_get_and_push.log"" 2^>^&1"
-echo Module start command submitted.
+@REM echo Starting proposals get-and-push module in background...
+@REM start "PROPOSALS_GET_AND_PUSH_BLOCKCHAIN_MPC" cmd /c "cd /d ""%PROJECT_DIR%"" && %PYTHON_CMD% -m app.modules.proposals_get_and_push ^> ""%LOG_DIR%\proposals_get_and_push.log"" 2^>^&1"
+@REM echo Module start command submitted.
+
+echo Starting FastAPI backend in background...
+start "BACKEND_API_BLOCKCHAIN_MPC" cmd /c "cd /d ""%PROJECT_DIR%"" && %PYTHON_CMD% -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload ^> ""%LOG_DIR%\backend_api.log"" 2^>^&1"
+echo Backend start command submitted. URL: http://127.0.0.1:8000
+
+where npm >nul 2>nul
+if %errorlevel%==0 (
+    echo Starting Vue frontend in background...
+    start "FRONTEND_VITE_BLOCKCHAIN_MPC" cmd /c "cd /d ""%PROJECT_DIR%\frontend"" && npm run dev -- --host 127.0.0.1 --port 5173 ^> ""%LOG_DIR%\frontend_vite.log"" 2^>^&1"
+    echo Frontend start command submitted. URL: http://127.0.0.1:5173
+) else (
+    echo [WARN] npm not found. Frontend was not started.
+)
 
 echo Done. Logs: "%LOG_DIR%"
 endlocal

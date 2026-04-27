@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 import yaml
+from pymongo import ReturnDocument
 
 from app.clients.kafka_client import KafkaClient
 from app.clients.mongo_client import MongoDBClient
@@ -16,6 +17,7 @@ from app.models.dao_proposal import (
     DetailAndSimilarProposalsResponse,
     DetailProposal,
     DynamicSynchronousProposalResponse,
+    ProposalStatusUpdateResponse,
     ProposalListInDAOResponse,
     ProposalListItem,
     SimilarProposals,
@@ -255,6 +257,63 @@ class DaoProposalService:
             ),
         )
 
+    def update_proposal_status(self, proposal_id: str, space_id: str) -> ProposalStatusUpdateResponse:
+        pid = (proposal_id or "").strip()
+        sid = (space_id or "").strip()
+        if not pid:
+            raise DaoProposalServiceError(400, "PROPOSAL_ID_REQUIRED", "Field 'proposal_id' is required.")
+        if not sid:
+            raise DaoProposalServiceError(400, "SPACE_ID_REQUIRED", "Field 'space_id' is required.")
+
+        self._find_visible_dao(sid)
+        raw = self._snapshot_client.get_proposal_by_id(proposal_id=pid, detail_level="full")
+        if raw is None:
+            raise DaoProposalServiceError(404, "SNAPSHOT_PROPOSAL_NOT_FOUND", "Snapshot proposal not found.")
+
+        snapshot_space_id = str((raw.get("space") or {}).get("id") or "").strip()
+        local_space_id = SnapshotService.to_config_space_id(snapshot_space_id)
+        valid_snapshot_space_id = SnapshotService.to_valid_snapshot_space_id(sid)
+        if snapshot_space_id not in {sid, valid_snapshot_space_id} and local_space_id != sid:
+            raise DaoProposalServiceError(
+                400,
+                "PROPOSAL_SPACE_MISMATCH",
+                "Snapshot proposal does not belong to the requested DAO space.",
+            )
+
+        update_fields = {
+            "state": raw.get("state"),
+            "end": raw.get("end"),
+            "choices": list(raw.get("choices", []) or []),
+            "scores": list(raw.get("scores", []) or []),
+            "scores_total": raw.get("scores_total"),
+            "scores_updated": raw.get("scores_updated"),
+        }
+
+        collection = self._mongo.collection(self._proposal_collection_name())
+        doc = collection.find_one_and_update(
+            {
+                "$and": [
+                    {"$or": [{"proposal_id": pid}, {"_id": pid}]},
+                    {"space_id": sid},
+                ]
+            },
+            {"$set": update_fields},
+            return_document=ReturnDocument.AFTER,
+        )
+        if doc is None:
+            raise DaoProposalServiceError(404, "LOCAL_PROPOSAL_NOT_FOUND", "Local proposal not found.")
+
+        return ProposalStatusUpdateResponse(
+            proposal_id=str(doc.get("proposal_id") or doc.get("_id") or pid),
+            space_id=str(doc.get("space_id") or sid),
+            state=doc.get("state"),
+            end=doc.get("end"),
+            choices=list(doc.get("choices", []) or []),
+            scores=list(doc.get("scores", []) or []),
+            scores_total=doc.get("scores_total"),
+            scores_updated=doc.get("scores_updated"),
+        )
+
     def dynamic_sync_proposals(self, space_id: str, latest_k: int) -> DynamicSynchronousProposalResponse:
         sid = (space_id or "").strip()
         if not sid:
@@ -322,5 +381,6 @@ class DaoProposalService:
         return DynamicSynchronousProposalResponse(
             fetched_count=len(latest_proposals),
             new_count=len(pushed_items),
+            recent_updated_count=max(0, len(latest_proposals) - len(pushed_items)),
             proposals=pushed_items,
         )

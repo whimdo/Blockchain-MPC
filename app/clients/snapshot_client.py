@@ -197,6 +197,32 @@ class SnapshotClient:
         space = data.get("space")
         return space if isinstance(space, dict) else None
 
+    def get_proposal_by_id(
+        self,
+        proposal_id: str,
+        detail_level: Literal["summary", "standard", "full"] = "full",
+    ) -> dict[str, Any] | None:
+        """
+        Fetch one Snapshot proposal by id.
+        """
+        pid = (proposal_id or "").strip()
+        if not pid:
+            return None
+
+        fields = self._resolve_fields(detail_level)
+        query = """
+        query Proposal($id: String!) {
+            proposal(id: $id) {
+                __FIELDS__
+            }
+        }
+        """
+        query = query.replace("__FIELDS__", fields)
+
+        data = self._post_graphql(query, {"id": pid})
+        proposal = data.get("proposal")
+        return proposal if isinstance(proposal, dict) else None
+
     def get_proposals_by_space_and_state(
         self,
         space_id: str,

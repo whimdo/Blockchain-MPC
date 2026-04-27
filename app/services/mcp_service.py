@@ -76,12 +76,143 @@ def fail(code: str, message: str) -> dict[str, Any]:
     }
 
 
+def _pick(data: dict[str, Any], keys: list[str]) -> dict[str, Any]:
+    return {key: data.get(key) for key in keys if key in data}
+
+
+def summarize_token_detail(result: Any) -> dict[str, Any]:
+    plain = to_plain(result) or {}
+    info = plain.get("info") or {}
+    return _pick(
+        info,
+        [
+            "symbol",
+            "name",
+            "display_name",
+            "price_display",
+            "price_change_24h",
+            "high_24h",
+            "low_24h",
+            "volume_24h",
+            "updated_at",
+            "status",
+        ],
+    )
+
+
+def summarize_token_chart(result: Any) -> dict[str, Any]:
+    plain = to_plain(result) or {}
+    summary = plain.get("summary") or {}
+    return {
+        "symbol": plain.get("symbol"),
+        "price_symbol": plain.get("price_symbol"),
+        "range": plain.get("range"),
+        "interval": plain.get("interval"),
+        "source": plain.get("source"),
+        "summary": _pick(
+            summary,
+            [
+                "start_price",
+                "end_price",
+                "change",
+                "change_percent",
+                "high",
+                "low",
+                "total_quote_volume",
+                "total_trades",
+            ],
+        ),
+    }
+
+
+def summarize_dao_overview(result: Any) -> dict[str, Any]:
+    plain = to_plain(result) or {}
+    return {
+        "page_updated_at": plain.get("page_updated_at"),
+        "dao_count": plain.get("dao_count"),
+        "daos": [
+            _pick(
+                dao,
+                [
+                    "name",
+                    "space_id",
+                    "description",
+                    "tags",
+                    "enabled",
+                    "latest_synchronization_time",
+                    "synchronized_proposals_count",
+                ],
+            )
+            for dao in plain.get("daos") or []
+        ],
+    }
+
+
+def summarize_proposal_list(result: Any, max_items: int = 8) -> dict[str, Any]:
+    plain = to_plain(result) or {}
+    return {
+        "page_updated_at": plain.get("page_updated_at"),
+        "space_id": plain.get("space_id"),
+        "dao_name": plain.get("dao_name"),
+        "page": plain.get("page"),
+        "page_size": plain.get("page_size"),
+        "total": plain.get("total"),
+        "proposals": [
+            _pick(item, ["proposal_id", "space_id", "author", "title", "state", "keywords"])
+            for item in (plain.get("proposals") or [])[:max_items]
+        ],
+    }
+
+
+def _brief_text(value: str | None, limit: int = 800) -> str | None:
+    if not value:
+        return value
+    text = " ".join(str(value).split())
+    return text if len(text) <= limit else f"{text[:limit]}..."
+
+
+def summarize_proposal_detail(result: Any, max_similar: int = 5) -> dict[str, Any]:
+    plain = to_plain(result) or {}
+    proposal = plain.get("proposal") or {}
+    similar = plain.get("similar_proposals") or {}
+    return {
+        "proposal": {
+            **_pick(
+                proposal,
+                [
+                    "proposal_id",
+                    "space_id",
+                    "title",
+                    "author",
+                    "state",
+                    "choices",
+                    "scores",
+                    "scores_total",
+                    "created",
+                    "link",
+                    "keywords",
+                ],
+            ),
+            "body_brief": _brief_text(proposal.get("body")),
+        },
+        "similar_proposals": {
+            "proposal_id": similar.get("proposal_id"),
+            "space_id": similar.get("space_id"),
+            "top_k": similar.get("top_k"),
+            "similar_proposals": [
+                _pick(item, ["proposal_id", "space_id", "author", "title", "state", "keywords"])
+                for item in (similar.get("similar_proposals") or [])[:max_similar]
+            ],
+        },
+    }
+
+
 @mcp.tool()
-def get_token_detail(symbol: str, include_chart: bool = True, chart_range: str = "7d") -> dict[str, Any]:
+def get_token_detail(symbol: str, include_chart: bool = False, chart_range: str = "7d") -> dict[str, Any]:
     """
     Function: Get token profile, current market detail, and optional recent chart data.
-    Input: symbol, include_chart=true, chart_range="7d".
-    Output: {ok, source, data.info, data.chart}; on failure {ok:false, code, message}.
+    Input: symbol, include_chart=false, chart_range="7d".
+    Output: compact token market fields only; on failure {ok:false, code, message}.
     """
     try:
         normalized_symbol = (symbol or "").strip().upper()
@@ -93,7 +224,7 @@ def get_token_detail(symbol: str, include_chart: bool = True, chart_range: str =
             include_chart=include_chart,
             chart_range=chart_range,
         )
-        return ok(result, source=["binance", "mongo"])
+        return ok(summarize_token_detail(result), source=["binance", "mongo"])
     except LookupError:
         return fail("TOKEN_NOT_FOUND", "Token configuration not found.")
     except Exception as exc:
@@ -106,7 +237,7 @@ def get_token_chart(symbol: str, chart_range: str = "7d", interval: str | None =
     """
     Function: Get token kline chart data and trend summary.
     Input: symbol, chart_range="7d", interval=None.
-    Output: {ok, source, data.klines, data.summary}; on failure {ok:false, code, message}.
+    Output: compact chart summary only, without full kline rows; on failure {ok:false, code, message}.
     """
     try:
         normalized_symbol = (symbol or "").strip().upper()
@@ -118,7 +249,7 @@ def get_token_chart(symbol: str, chart_range: str = "7d", interval: str | None =
             chart_range=chart_range,
             interval=interval,
         )
-        return ok(result, source=["binance"])
+        return ok(summarize_token_chart(result), source=["binance"])
     except LookupError:
         return fail("TOKEN_NOT_FOUND", "Token configuration not found.")
     except Exception as exc:
@@ -131,11 +262,11 @@ def get_dao_spaces() -> dict[str, Any]:
     """
     Function: Get the DAO spaces currently supported by this platform.
     Input: no parameters.
-    Output: {ok, source, data.dao_count, data.daos}; on failure {ok:false, code, message}.
+    Output: compact DAO overview; on failure {ok:false, code, message}.
     """
     try:
         result = dao_proposal_service().get_dao_overview()
-        return ok(result, source=["mongo", "config"])
+        return ok(summarize_dao_overview(result), source=["mongo", "config"])
     except Exception as exc:
         logger.exception("MCP get_dao_spaces failed")
         return fail("DAO_OVERVIEW_ERROR", str(exc))
@@ -146,7 +277,7 @@ def list_proposals(space_id: str, page: int = 1, page_size: int = 5) -> dict[str
     """
     Function: List proposals in a supported Snapshot DAO space.
     Input: space_id, page=1, page_size=5.
-    Output: {ok, source, data.dao_name, data.proposals}; on failure {ok:false, code, message}.
+    Output: compact proposal list; on failure {ok:false, code, message}.
     """
     try:
         normalized_space_id = (space_id or "").strip()
@@ -158,7 +289,7 @@ def list_proposals(space_id: str, page: int = 1, page_size: int = 5) -> dict[str
             page=max(1, int(page or 1)),
             page_size=min(100, max(1, int(page_size or 5))),
         )
-        return ok(result, source=["mongo"])
+        return ok(summarize_proposal_list(result), source=["mongo"])
     except Exception as exc:
         logger.exception("MCP list_proposals failed space_id=%s", space_id)
         return fail("DAO_PROPOSALS_ERROR", str(exc))
@@ -169,7 +300,7 @@ def get_proposal_detail(proposal_id: str, top_k: int = 5) -> dict[str, Any]:
     """
     Function: Get proposal detail and related similar proposals.
     Input: proposal_id, top_k=5.
-    Output: {ok, source, data.proposal, data.similar_proposals}; on failure {ok:false, code, message}.
+    Output: compact proposal detail and similar proposals; on failure {ok:false, code, message}.
     """
     try:
         normalized_proposal_id = (proposal_id or "").strip()
@@ -180,7 +311,7 @@ def get_proposal_detail(proposal_id: str, top_k: int = 5) -> dict[str, Any]:
             proposal_id=normalized_proposal_id,
             top_k=min(20, max(1, int(top_k or 5))),
         )
-        return ok(result, source=["mongo", "milvus"])
+        return ok(summarize_proposal_detail(result), source=["mongo", "milvus"])
     except Exception as exc:
         logger.exception("MCP get_proposal_detail failed proposal_id=%s", proposal_id)
         return fail("PROPOSAL_DETAIL_ERROR", str(exc))

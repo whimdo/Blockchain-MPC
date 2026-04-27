@@ -48,7 +48,8 @@ function Stop-FromPidFile {
 }
 
 Stop-FromPidFile -PidFile (Join-Path $PidDir "proposals_vectorized_and_store.pid") -Name "Module"
-Stop-FromPidFile -PidFile (Join-Path $PidDir "proposals_get_and_push.pid") -Name "Module"
-Stop-FromPidFile -PidFile (Join-Path $PidDir "kafka.pid") -Name "Kafka"
+# Stop-FromPidFile -PidFile (Join-Path $PidDir "proposals_get_and_push.pid") -Name "Module"
+Stop-FromPidFile -PidFile (Join-Path $PidDir "backend_api.pid") -Name "Backend"
+Stop-FromPidFile -PidFile (Join-Path $PidDir "frontend_vite.pid") -Name "Frontend"
 
 Write-Host "Done."

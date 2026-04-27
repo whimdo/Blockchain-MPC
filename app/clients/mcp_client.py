@@ -55,6 +55,7 @@ class MCPClient:
         self.ai_client = OpenAI(
             base_url=self.ai_config.base_url,
             api_key=self.ai_config.api_key,
+            max_retries=0,
         )
 
     async def connect_to_server(self, server_script_path: str) -> None:
@@ -119,7 +120,7 @@ class MCPClient:
         first_request: dict[str, Any] = {
             "model": self.ai_config.model,
             "messages": messages,
-            "max_tokens": 512,
+            "max_tokens": 8192,
             "temperature": 0,
             "timeout": self.ai_config.timeout_seconds,
         }
@@ -128,6 +129,7 @@ class MCPClient:
             first_request["tool_choice"] = "auto"
 
         first_response = await self._create_completion(first_request)
+        self.logger.info("first response = %s", serialize_messages(first_response))
 
         first_message = first_response.choices[0].message
         tool_calls = list(first_message.tool_calls or [])
@@ -138,7 +140,7 @@ class MCPClient:
                 "tool_calls": [self._tool_call_to_dict(tool_call) for tool_call in tool_calls],
             }
         )
-        self.logger.debug("Messages after first AI response=%s", serialize_messages(messages))
+        self.logger.info("Messages after first AI response=%s", serialize_messages(messages))
 
         if tool_calls:
             for tool_call in tool_calls:
@@ -189,13 +191,13 @@ class MCPClient:
                     }
                 )
                 self.logger.info("MCP tool call finished name=%s", tool_call.function.name)
-                self.logger.debug("MCP tool result name=%s result=%s", tool_call.function.name, tool_text)
+                self.logger.info("MCP tool result name=%s result=%s", tool_call.function.name, tool_text)
 
             final_response = await self._create_completion(
                 {
                     "model": self.ai_config.model,
                     "messages": messages,
-                    "max_tokens": 1024,
+                    "max_tokens": 8192,
                     "temperature": 0,
                     "timeout": self.ai_config.timeout_seconds,
                 }

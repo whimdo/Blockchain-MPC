@@ -11,6 +11,8 @@ from app.models.dao_proposal import (
     ErrorResponse,
     ProposalListInDAORequest,
     ProposalListInDAOResponse,
+    ProposalStatusUpdateRequest,
+    ProposalStatusUpdateResponse,
 )
 from app.services.dao_proposal_service import DaoProposalService, DaoProposalServiceError
 from app.utils.logging_config import get_logger
@@ -64,6 +66,29 @@ def get_proposals_in_dao(
         return JSONResponse(
             status_code=500,
             content={"code": "DAO_PROPOSALS_ERROR", "message": "Failed to load dao proposals."},
+        )
+
+
+@router.post(
+    "/proposal/status-update",
+    response_model=ProposalStatusUpdateResponse,
+    responses={400: {"model": ErrorResponse}, 404: {"model": ErrorResponse}, 500: {"model": ErrorResponse}},
+    summary="Update Proposal Status",
+)
+def update_proposal_status(req: ProposalStatusUpdateRequest) -> ProposalStatusUpdateResponse | JSONResponse:
+    try:
+        return _service.update_proposal_status(proposal_id=req.proposal_id, space_id=req.space_id)
+    except DaoProposalServiceError as exc:
+        return JSONResponse(status_code=exc.status_code, content={"code": exc.code, "message": exc.message})
+    except Exception:
+        logger.exception(
+            "Failed to update proposal status proposal_id=%s space_id=%s",
+            req.proposal_id,
+            req.space_id,
+        )
+        return JSONResponse(
+            status_code=500,
+            content={"code": "PROPOSAL_STATUS_UPDATE_ERROR", "message": "Failed to update proposal status."},
         )
 
 

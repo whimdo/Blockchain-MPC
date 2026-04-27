@@ -20,6 +20,11 @@ const syncLatestK = ref(10)
 const loading = ref(false)
 const syncing = ref(false)
 const error = ref('')
+const syncDialogOpen = ref(false)
+const syncDialog = ref({
+  fetched: 0,
+  recentUpdated: 0,
+})
 
 const stateOptions = ['all', 'active', 'pending', 'closed']
 
@@ -35,6 +40,15 @@ function stateText(state: string) {
     pending: '待开始',
   }
   return stateMap[state] || state
+}
+
+function stateClass(state: string) {
+  const normalized = (state || '').trim().toLowerCase()
+  return {
+    active: normalized === 'active' || normalized === '进行中',
+    pending: normalized === 'pending' || normalized === '待开始',
+    closed: normalized === 'closed' || normalized === '已关闭',
+  }
 }
 
 async function loadProposals() {
@@ -63,10 +77,20 @@ async function loadProposals() {
 async function dynamicSync() {
   syncing.value = true
   error.value = ''
+  syncDialogOpen.value = false
   try {
     const res = await daoApi.dynamicSync({ space_id: spaceId.value, latest_k: syncLatestK.value })
-    if (res.proposals.length) proposals.value = res.proposals
-    total.value = res.proposals.length || total.value
+    if (res.proposals.length) {
+      proposals.value = res.proposals
+      total.value = res.proposals.length
+      return
+    }
+
+    syncDialog.value = {
+      fetched: res.fetched_count,
+      recentUpdated: res.recent_updated_count,
+    }
+    syncDialogOpen.value = true
   } catch (err) {
     error.value = getApiError(err)
   } finally {
@@ -160,7 +184,7 @@ watch(() => route.params.spaceId, () => {
       <div v-if="loading" class="empty-state">正在加载 Proposal...</div>
       <div v-else class="proposal-grid">
         <button v-for="proposal in proposals" :key="proposal.proposal_id" class="proposal-card" @click="router.push(`/governance/proposal/${proposal.proposal_id}`)">
-          <span class="proposal-state">{{ stateText(proposal.state) }}</span>
+          <span class="proposal-state" :class="stateClass(proposal.state)">{{ stateText(proposal.state) }}</span>
           <h3>{{ proposal.title }}</h3>
           <p>{{ proposal.author || 'unknown author' }}</p>
           <div class="tag-row">
@@ -182,5 +206,17 @@ watch(() => route.params.spaceId, () => {
         <button class="ghost compact" :disabled="page >= totalPages" @click="changePage(page + 1)">下一页</button>
       </div>
     </section>
+
+    <div v-if="syncDialogOpen" class="modal-backdrop" @click.self="syncDialogOpen = false">
+      <section class="sync-dialog panel reveal">
+        <p class="eyebrow">Dynamic Sync</p>
+        <h2>暂无新的提案</h2>
+        <p class="muted">
+          本次动态同步抓取了 <strong>{{ syncDialog.fetched }}</strong> 个最近 Proposal，
+          其中 <strong>{{ syncDialog.recentUpdated }}</strong> 个属于最近已同步/已存在的 Proposal。
+        </p>
+        <button class="primary compact" @click="syncDialogOpen = false">我知道了</button>
+      </section>
+    </div>
   </main>
 </template>

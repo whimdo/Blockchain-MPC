@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="TON">
+  <defs><linearGradient id="g" x1="18" x2="78" y1="12" y2="84" gradientUnits="userSpaceOnUse"><stop stop-color="#38bdf8"/><stop offset="1" stop-color="#2563eb"/></linearGradient></defs>
+  <rect width="96" height="96" rx="28" fill="url(#g)"/>
+  <path d="M23 29h50L48 75 23 29Z" fill="#fff" opacity=".94"/>
+  <path d="M35 36h26L48 61 35 36Z" fill="#38bdf8" opacity=".68"/>
+</svg>
