@@ -8,6 +8,7 @@ from app.api.auth import router as auth_router
 from app.api.dao_proposal import router as dao_proposal_router
 from app.api.dashboard_tokens import router as dashboard_tokens_router
 from app.api.token_detail import router as token_detail_router
+from app.api.wallet_analysis import router as wallet_analysis_router
 from app.services.mcp_client_manager import mcp_client_manager
 from app.utils.logging_config import get_logger
 
@@ -35,3 +36,4 @@ app.include_router(dashboard_tokens_router)
 app.include_router(token_detail_router)
 app.include_router(dao_proposal_router)
 app.include_router(ai_chat_router)
+app.include_router(wallet_analysis_router)

@@ -8,6 +8,7 @@ import ProposalDetailView from '@/views/governance/ProposalDetailView.vue'
 import ProposalListView from '@/views/governance/ProposalListView.vue'
 import TokenDetailView from '@/views/tokens/TokenDetailView.vue'
 import TokenOverviewView from '@/views/tokens/TokenOverviewView.vue'
+import WalletInsightView from '@/views/wallet/WalletInsightView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -21,6 +22,7 @@ const router = createRouter({
       children: [
         { path: 'tokens', name: 'tokens', component: TokenOverviewView },
         { path: 'tokens/:symbol', name: 'token-detail', component: TokenDetailView },
+        { path: 'wallet', name: 'wallet', component: WalletInsightView },
         { path: 'governance', name: 'governance', component: GovernanceOverviewView },
         { path: 'governance/proposal/:proposalId', name: 'proposal-detail', component: ProposalDetailView },
         { path: 'governance/:spaceId/proposals', name: 'proposal-list', component: ProposalListView },

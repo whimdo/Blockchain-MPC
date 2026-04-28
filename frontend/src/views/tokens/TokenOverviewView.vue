@@ -1,27 +1,18 @@
 ﻿<script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
-import { getApiError, tokenApi } from '@/api/client'
-import type { TokenOverviewResponse } from '@/types/api'
+import { useTokenDashboardStore } from '@/stores/tokenDashboard'
 import { assetUrl, formatDate } from '@/utils'
 
 const router = useRouter()
-const overview = ref<TokenOverviewResponse | null>(null)
-const loading = ref(false)
-const error = ref('')
-
-const totalOnline = computed(() => overview.value?.groups.flatMap((group) => group.cards).filter((token) => token.status === 'online').length ?? 0)
+const tokenDashboard = useTokenDashboardStore()
+const { overview, loading, error, totalOnline } = storeToRefs(tokenDashboard)
+const refreshDialogOpen = ref(false)
 
 async function loadOverview(refresh = false) {
-  loading.value = true
-  error.value = ''
-  try {
-    overview.value = refresh ? await tokenApi.refreshAll() : await tokenApi.overview()
-  } catch (err) {
-    error.value = getApiError(err)
-  } finally {
-    loading.value = false
-  }
+  await tokenDashboard.loadOverview(refresh)
+  if (refresh) refreshDialogOpen.value = true
 }
 
 onMounted(() => loadOverview())
@@ -76,5 +67,20 @@ onMounted(() => loadOverview())
         </div>
       </div>
     </section>
+
+    <div v-if="refreshDialogOpen" class="modal-backdrop" @click.self="refreshDialogOpen = false">
+      <section class="sync-dialog panel reveal">
+        <p class="eyebrow">Refresh Complete</p>
+        <h2>刷新成功</h2>
+        <p class="muted">
+          已完成全部代币行情刷新，共加载 <strong>{{ overview?.total_tokens ?? 0 }}</strong> 个代币，
+          更新时间为 <strong>{{ formatDate(overview?.page_updated_at) }}</strong>。
+        </p>
+        <button class="primary compact" @click="refreshDialogOpen = false">我知道了</button>
+      </section>
+    </div>
   </main>
 </template>
+
+
+

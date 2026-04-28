@@ -115,6 +115,69 @@ export interface TokenAISummaryResponse {
   summary: TokenAISummary
 }
 
+export interface WalletChainOption {
+  key: string
+  label: string
+  enabled: boolean
+}
+
+export interface WalletChainOptionsResponse {
+  chains: WalletChainOption[]
+}
+
+export interface WalletAssetItem {
+  symbol: string
+  name?: string | null
+  blockchain?: string | null
+  token_type?: string | null
+  contract_address?: string | null
+  balance?: number | null
+  display_balance?: string | null
+  price_usdt?: number | null
+  value_usdt: number
+  ratio: number
+  category: string
+  logo?: string | null
+  tags: string[]
+}
+
+export interface WalletCategoryBreakdown {
+  category: string
+  label: string
+  value_usdt: number
+  ratio: number
+}
+
+export interface WalletGovernanceHint {
+  symbol: string
+  dao_name: string
+  space_id: string
+  value_usdt: number
+  ratio: number
+}
+
+export interface WalletInsightResponse {
+  address: string
+  chains: string[]
+  chain_options: WalletChainOption[]
+  asset_count: number
+  priced_count: number
+  total_value_usdt: number
+  stablecoin_ratio: number
+  mainstream_ratio: number
+  defi_ratio: number
+  meme_ratio: number
+  governance_ratio: number
+  concentration_ratio: number
+  risk_level: string
+  risk_label: string
+  page_updated_at: string
+  assets: WalletAssetItem[]
+  category_breakdown: WalletCategoryBreakdown[]
+  governance_hints: WalletGovernanceHint[]
+  insights: string[]
+}
+
 export interface DaoCard {
   name: string
   space_id: string

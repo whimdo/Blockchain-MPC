@@ -16,6 +16,8 @@ import type {
   TokenChartSummary,
   TokenDetailResponse,
   TokenOverviewResponse,
+  WalletChainOptionsResponse,
+  WalletInsightResponse,
 } from '@/types/api'
 
 const TOKEN_KEY = 'bmpc_access_token'
@@ -92,6 +94,12 @@ export const daoApi = {
     api.post<DynamicSyncResponse>('/dao/proposals/dynamic-sync', payload).then((res) => res.data),
   updateProposalStatus: (payload: { proposal_id: string; space_id: string }) =>
     api.post<ProposalStatusUpdateResponse>('/dao/proposal/status-update', payload).then((res) => res.data),
+}
+
+export const walletApi = {
+  chains: () => api.get<WalletChainOptionsResponse>('/wallet/chains').then((res) => res.data),
+  analyze: (payload: { address: string; chains: string[] }) =>
+    api.post<WalletInsightResponse>('/wallet/analyze', payload).then((res) => res.data),
 }
 
 export const aiApi = {

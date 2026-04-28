@@ -1,0 +1,33 @@
+﻿supported_chains:
+  - key: eth
+    label: Ethereum
+    enabled: true
+    sort_order: 1
+  - key: bsc
+    label: BNB Smart Chain
+    enabled: true
+    sort_order: 2
+  - key: polygon
+    label: Polygon
+    enabled: true
+    sort_order: 3
+
+analysis_rules:
+  concentration_threshold: 0.5
+  stablecoin_defensive_threshold: 0.35
+  high_volatility_threshold: 0.2
+  governance_attention_threshold: 0.15
+
+governance_token_links:
+  AAVE:
+    dao_name: Aave DAO
+    space_id: aave.eth
+  UNI:
+    dao_name: Uniswap Governance
+    space_id: uniswap
+  ARB:
+    dao_name: Arbitrum DAO
+    space_id: arbitrumfoundation.eth
+  OP:
+    dao_name: Optimism Collective
+    space_id: optimismcollective.eth

@@ -322,6 +322,12 @@ async function sendMessage(text = input.value) {
 }
 
 onMounted(async () => {
+  const draft = sessionStorage.getItem('chainpilot_ai_draft')
+  if (draft) {
+    input.value = draft
+    mode.value = 'auto'
+    sessionStorage.removeItem('chainpilot_ai_draft')
+  }
   document.addEventListener('click', handleDocumentClick)
   await loadSessions()
   if (sessions.value[0]) await selectSession(sessions.value[0].session_id)
