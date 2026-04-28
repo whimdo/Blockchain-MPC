@@ -1,5 +1,6 @@
 ﻿<script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
 import VChart from 'vue-echarts'
 import { use } from 'echarts/core'
@@ -7,20 +8,16 @@ import { CanvasRenderer } from 'echarts/renderers'
 import { PieChart } from 'echarts/charts'
 import { LegendComponent, TooltipComponent } from 'echarts/components'
 import type { EChartsOption } from 'echarts'
-import { getApiError, walletApi } from '@/api/client'
-import type { WalletChainOption, WalletInsightResponse } from '@/types/api'
+import { useWalletInsightStore } from '@/stores/walletInsight'
 import { assetUrl, compactNumber, formatDate } from '@/utils'
 
 use([CanvasRenderer, PieChart, TooltipComponent, LegendComponent])
 
 const router = useRouter()
+const walletInsight = useWalletInsightStore()
+const { chainOptions, loadingChains, loading, error, result } = storeToRefs(walletInsight)
 const address = ref('')
-const chainOptions = ref<WalletChainOption[]>([])
 const selectedChains = ref<string[]>([])
-const result = ref<WalletInsightResponse | null>(null)
-const loading = ref(false)
-const loadingChains = ref(false)
-const error = ref('')
 const assetSupportFilter = ref<'all' | 'supported' | 'unsupported'>('all')
 const assetChainFilter = ref('all')
 const assetSort = ref<'default' | 'value'>('default')
@@ -151,34 +148,25 @@ function openTokenDetail(symbol: string) {
 }
 
 async function loadChains() {
-  loadingChains.value = true
   try {
-    const res = await walletApi.chains()
-    chainOptions.value = res.chains
-    selectedChains.value = chainOptions.value.map((item) => item.key)
+    await walletInsight.loadChains()
+    if (!selectedChains.value.length) {
+      selectedChains.value = chainOptions.value.map((item) => item.key)
+    }
   } catch (err) {
-    error.value = getApiError(err)
-  } finally {
-    loadingChains.value = false
+    // Store already keeps the user-facing error.
   }
 }
 
-async function analyzeWallet() {
-  loading.value = true
-  error.value = ''
+async function analyzeWallet(force = false) {
   try {
-    result.value = await walletApi.analyze({ address: address.value, chains: selectedChains.value })
+    await walletInsight.analyze(address.value, selectedChains.value, force)
     assetSupportFilter.value = 'all'
     assetChainFilter.value = 'all'
     assetSort.value = 'default'
     resetAssetPage()
-    if (result.value.chain_options.length && !chainOptions.value.length) {
-      chainOptions.value = result.value.chain_options
-    }
   } catch (err) {
-    error.value = getApiError(err)
-  } finally {
-    loading.value = false
+    // Store already keeps the user-facing error.
   }
 }
 
@@ -216,10 +204,13 @@ onMounted(loadChains)
       <div class="wallet-query-main">
         <label>
           <span>钱包地址</span>
-          <input v-model="address" placeholder="例如：0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045" @keyup.enter="analyzeWallet" />
+          <input v-model="address" placeholder="例如：0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045" @keyup.enter="() => analyzeWallet()" />
         </label>
-        <button class="primary" :disabled="loading || !address.trim()" @click="analyzeWallet">
+        <button class="primary" :disabled="loading || !address.trim()" @click="() => analyzeWallet()">
           {{ loading ? '分析中...' : '开始分析' }}
+        </button>
+        <button class="ghost" :disabled="loading || !address.trim()" @click="analyzeWallet(true)">
+          重新分析
         </button>
       </div>
 

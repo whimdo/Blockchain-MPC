@@ -4,6 +4,7 @@ import MainLayout from '@/layouts/MainLayout.vue'
 import LoginView from '@/views/auth/LoginView.vue'
 import AiAssistantView from '@/views/assistant/AiAssistantView.vue'
 import GovernanceOverviewView from '@/views/governance/GovernanceOverviewView.vue'
+import NewsView from '@/views/news/NewsView.vue'
 import ProposalDetailView from '@/views/governance/ProposalDetailView.vue'
 import ProposalListView from '@/views/governance/ProposalListView.vue'
 import TokenDetailView from '@/views/tokens/TokenDetailView.vue'
@@ -24,6 +25,7 @@ const router = createRouter({
         { path: 'tokens/:symbol', name: 'token-detail', component: TokenDetailView },
         { path: 'wallet', name: 'wallet', component: WalletInsightView },
         { path: 'governance', name: 'governance', component: GovernanceOverviewView },
+        { path: 'news', name: 'news', component: NewsView },
         { path: 'governance/proposal/:proposalId', name: 'proposal-detail', component: ProposalDetailView },
         { path: 'governance/:spaceId/proposals', name: 'proposal-list', component: ProposalListView },
         { path: 'assistant', name: 'assistant', component: AiAssistantView },

@@ -28,6 +28,7 @@ function logout() {
         <RouterLink to="/tokens">代币</RouterLink>
         <RouterLink to="/wallet">地址分析</RouterLink>
         <RouterLink to="/governance">治理</RouterLink>
+        <RouterLink to="/news">新闻</RouterLink>
         <RouterLink to="/assistant">AI助手</RouterLink>
       </nav>
 

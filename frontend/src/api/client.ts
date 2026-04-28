@@ -8,6 +8,8 @@ import type {
   DaoOverviewResponse,
   DynamicSyncResponse,
   MeResponse,
+  NewsLatestResponse,
+  NewsSyncResponse,
   ProposalDetailResponse,
   ProposalListResponse,
   ProposalStatusUpdateResponse,
@@ -100,6 +102,12 @@ export const walletApi = {
   chains: () => api.get<WalletChainOptionsResponse>('/wallet/chains').then((res) => res.data),
   analyze: (payload: { address: string; chains: string[] }) =>
     api.post<WalletInsightResponse>('/wallet/analyze', payload).then((res) => res.data),
+}
+
+export const newsApi = {
+  latest: (params: { limit?: number; category?: string | null; symbol?: string | null } = {}) =>
+    api.get<NewsLatestResponse>('/news/latest', { params }).then((res) => res.data),
+  sync: (limit = 30) => api.post<NewsSyncResponse>('/news/sync', null, { params: { limit } }).then((res) => res.data),
 }
 
 export const aiApi = {

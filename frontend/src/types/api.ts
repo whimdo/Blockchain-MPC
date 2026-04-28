@@ -178,6 +178,34 @@ export interface WalletInsightResponse {
   insights: string[]
 }
 
+export interface NewsArticle {
+  article_id: string
+  title: string
+  summary?: string | null
+  source: string
+  url: string
+  published_at?: string | null
+  category: string
+  category_label: string
+  related_symbols: string[]
+  related_keywords: string[]
+  fetched_at: string
+}
+
+export interface NewsLatestResponse {
+  page_updated_at: string
+  total: number
+  categories: string[]
+  articles: NewsArticle[]
+}
+
+export interface NewsSyncResponse {
+  source_count: number
+  fetched_count: number
+  upserted_count: number
+  articles: NewsArticle[]
+}
+
 export interface DaoCard {
   name: string
   space_id: string
