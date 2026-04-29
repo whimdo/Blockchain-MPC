@@ -1,0 +1,49 @@
+﻿news_sources:
+  - name: CoinDesk
+    type: rss
+    url: https://www.coindesk.com/arc/outboundfeeds/rss/
+    enabled: true
+    default_category: market
+    homepage: https://www.coindesk.com
+
+category_rules:
+  market:
+    label: 市场行情
+    keywords: [bitcoin, btc, ethereum, eth, price, market, trading, etf]
+  dao:
+    label: DAO治理
+    keywords: [dao, governance, proposal, vote, treasury]
+  defi:
+    label: DeFi
+    keywords: [defi, dex, lending, aave, uniswap, liquidity, stablecoin]
+  layer2:
+    label: Layer2
+    keywords: [layer 2, layer2, rollup, arbitrum, optimism, base]
+  security:
+    label: 安全事件
+    keywords: [hack, exploit, attack, bridge, security, scam]
+  regulation:
+    label: 监管政策
+    keywords: [sec, regulation, policy, law, lawsuit, court]
+
+tracked_symbols:
+  - BTC
+  - ETH
+  - USDT
+  - USDC
+  - BNB
+  - SOL
+  - ADA
+  - AVAX
+  - TON
+  - NEAR
+  - ARB
+  - OP
+  - XRP
+  - TRX
+  - DOGE
+  - LINK
+  - UNI
+  - AAVE
+  - FIL
+  - SHIB

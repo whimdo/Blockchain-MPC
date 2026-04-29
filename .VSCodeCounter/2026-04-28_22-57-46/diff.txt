@@ -1,0 +1,72 @@
+Date : 2026-04-28 22:57:46
+Directory : e:\-bishe\Blockchain-MPC
+Total : 23 files,  2148 codes, 0 comments, 294 blanks, all 2442 lines
+
+Languages
++------------+------------+------------+------------+------------+------------+
+| language   | files      | code       | comment    | blank      | total      |
++------------+------------+------------+------------+------------+------------+
+| Python     |          8 |        645 |          0 |        115 |        760 |
+| vue        |          5 |        525 |          0 |         56 |        581 |
+| PostCSS    |          1 |        348 |          0 |          2 |        350 |
+| Markdown   |          1 |        292 |          0 |         78 |        370 |
+| TypeScript |          6 |        260 |          0 |         37 |        297 |
+| YAML       |          2 |         78 |          0 |          6 |         84 |
++------------+------------+------------+------------+------------+------------+
+
+Directories
++---------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                      | files      | code       | comment    | blank      | total      |
++---------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                         |         23 |      2,148 |          0 |        294 |      2,442 |
+| . (Files)                                                                 |          1 |        292 |          0 |         78 |        370 |
+| app                                                                       |          7 |        640 |          0 |        115 |        755 |
+| app (Files)                                                               |          1 |          4 |          0 |          0 |          4 |
+| app\api                                                                   |          2 |         84 |          0 |         18 |        102 |
+| app\models                                                                |          2 |         86 |          0 |         28 |        114 |
+| app\services                                                              |          2 |        466 |          0 |         69 |        535 |
+| configs                                                                   |          3 |         83 |          0 |          6 |         89 |
+| frontend                                                                  |         12 |      1,133 |          0 |         95 |      1,228 |
+| frontend\src                                                              |         12 |      1,133 |          0 |         95 |      1,228 |
+| frontend\src\api                                                          |          1 |         14 |          0 |          2 |         16 |
+| frontend\src\assets                                                       |          1 |        348 |          0 |          2 |        350 |
+| frontend\src\layouts                                                      |          1 |          2 |          0 |          0 |          2 |
+| frontend\src\router                                                       |          1 |          4 |          0 |          0 |          4 |
+| frontend\src\stores                                                       |          3 |        160 |          0 |         26 |        186 |
+| frontend\src\types                                                        |          1 |         82 |          0 |          9 |         91 |
+| frontend\src\views                                                        |          4 |        523 |          0 |         56 |        579 |
+| frontend\src\views\assistant                                              |          1 |          6 |          0 |          0 |          6 |
+| frontend\src\views\news                                                   |          1 |        161 |          0 |         19 |        180 |
+| frontend\src\views\tokens                                                 |          1 |          3 |          0 |          3 |          6 |
+| frontend\src\views\wallet                                                 |          1 |        353 |          0 |         34 |        387 |
++---------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++---------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| filename                                                                  | language   | code       | comment    | blank      | total      |
++---------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| e:\-bishe\Blockchain-MPC\app\api\news.py                                  | Python     |         41 |          0 |          9 |         50 |
+| e:\-bishe\Blockchain-MPC\app\api\wallet_analysis.py                       | Python     |         43 |          0 |          9 |         52 |
+| e:\-bishe\Blockchain-MPC\app\main.py                                      | Python     |          4 |          0 |          0 |          4 |
+| e:\-bishe\Blockchain-MPC\app\models\news_models.py                        | Python     |         27 |          0 |         10 |         37 |
+| e:\-bishe\Blockchain-MPC\app\models\wallet_models.py                      | Python     |         59 |          0 |         18 |         77 |
+| e:\-bishe\Blockchain-MPC\app\services\news_service.py                     | Python     |        177 |          0 |         31 |        208 |
+| e:\-bishe\Blockchain-MPC\app\services\wallet_analysis_service.py          | Python     |        289 |          0 |         38 |        327 |
+| e:\-bishe\Blockchain-MPC\configs\mongo_config.py                          | Python     |          5 |          0 |          0 |          5 |
+| e:\-bishe\Blockchain-MPC\configs\news_sources_config.yaml                 | YAML       |         47 |          0 |          3 |         50 |
+| e:\-bishe\Blockchain-MPC\configs\wallet_analysis_config.yaml              | YAML       |         31 |          0 |          3 |         34 |
+| e:\-bishe\Blockchain-MPC\frontend\src\api\client.ts                       | TypeScript |         14 |          0 |          2 |         16 |
+| e:\-bishe\Blockchain-MPC\frontend\src\assets\main.css                     | PostCSS    |        348 |          0 |          2 |        350 |
+| e:\-bishe\Blockchain-MPC\frontend\src\layouts\MainLayout.vue              | vue        |          2 |          0 |          0 |          2 |
+| e:\-bishe\Blockchain-MPC\frontend\src\router\index.ts                     | TypeScript |          4 |          0 |          0 |          4 |
+| e:\-bishe\Blockchain-MPC\frontend\src\stores\news.ts                      | TypeScript |         55 |          0 |          8 |         63 |
+| e:\-bishe\Blockchain-MPC\frontend\src\stores\tokenDashboard.ts            | TypeScript |         38 |          0 |          7 |         45 |
+| e:\-bishe\Blockchain-MPC\frontend\src\stores\walletInsight.ts             | TypeScript |         67 |          0 |         11 |         78 |
+| e:\-bishe\Blockchain-MPC\frontend\src\types\api.ts                        | TypeScript |         82 |          0 |          9 |         91 |
+| e:\-bishe\Blockchain-MPC\frontend\src\views\assistant\AiAssistantView.vue | vue        |          6 |          0 |          0 |          6 |
+| e:\-bishe\Blockchain-MPC\frontend\src\views\news\NewsView.vue             | vue        |        161 |          0 |         19 |        180 |
+| e:\-bishe\Blockchain-MPC\frontend\src\views\tokens\TokenOverviewView.vue  | vue        |          3 |          0 |          3 |          6 |
+| e:\-bishe\Blockchain-MPC\frontend\src\views\wallet\WalletInsightView.vue  | vue        |        353 |          0 |         34 |        387 |
+| e:\-bishe\Blockchain-MPC\地址分析接口测试方案.md                                    | Markdown   |        292 |          0 |         78 |        370 |
+| Total                                                                     |            |      2,148 |          0 |        294 |      2,442 |
++---------------------------------------------------------------------------+------------+------------+------------+------------+------------+
